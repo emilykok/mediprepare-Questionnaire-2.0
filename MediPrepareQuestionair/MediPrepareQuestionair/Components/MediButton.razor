@@ -1,0 +1,41 @@
+﻿@using System.Text
+
+<button style="@style" class="@GetClass()" onclick="@ButtonClick">@Text</button>
+
+@code {
+    [Parameter] public Action OnClick { get; set; } = () => { };
+    [Parameter] public string Text { get; set; } = "Unfilled Button";
+    [Parameter] public string Color { get; set; } = "primary";
+    [Parameter] public string Size { get; set; } = "md";
+    [Parameter] public bool IsOutline { get; set; } = false;
+    [Parameter] public string ExtraInfo { get; set; } = "";
+    [Parameter] public string style { get; set; } = "";
+    
+    string GetClass()
+    {
+        var sb = new StringBuilder();
+        sb.Append("btn");
+        sb.Append($" btn-{Color}");
+        sb.Append($" btn-{Size}");
+        if (IsOutline)
+        {
+            sb.Append($" btn-outline-{Color}");
+        }
+        return sb.ToString();
+    }
+    private void ButtonClick()
+    {
+        Log(ExtraInfo);
+        OnClick.Invoke();
+    }
+    
+}
+
+@code{
+
+    public void Log(string data)
+    {
+        
+    }
+
+}

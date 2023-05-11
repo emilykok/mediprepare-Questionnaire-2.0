@@ -1,17 +1,19 @@
-﻿@page "/counter"
+﻿@page "/counter" // <--- This is the route for the page 
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>Counter</PageTitle> @*<--- This is the title of the page inside the browser*@
 
 <h1>Counter</h1>
-
+@* Use @ to reference methods or variables  vvvv *@
 <p role="status">Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button> @*<--- This is the button that will call the method*@
+
+<SampleComponent/>
 
 @code {
-    private int currentCount = 0;
+    private int currentCount = 0; // <--- This is the variable that will be displayed on the page
 
-    private void IncrementCount()
+    private void IncrementCount() // <--- This is the method that will be called when the button is clicked
     {
         currentCount++;
     }

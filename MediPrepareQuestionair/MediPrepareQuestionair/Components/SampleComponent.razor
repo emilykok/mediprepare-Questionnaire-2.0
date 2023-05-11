@@ -1,0 +1,16 @@
+﻿@namespace MediPrepareQuestionair.Components
+<h3>SampleComponent</h3>
+<p>@Name</p>
+
+<MediButton></MediButton>
+
+@code {
+    public string Name { get; set; } = "World";
+    protected override void OnInitialized()  //<-- This is the first method that is called when the component is initialized
+    {
+        
+        Name = "Hello World";
+        base.OnInitialized(); //<-- This is the base class method that is called
+        Name = "World hello";
+    }
+}
