@@ -1,0 +1,189 @@
+﻿@page "/FormMaker"
+@using MediPrepareQuestionair.Database
+@using MediPrepareQuestionair.Services
+@using System.Text
+@inject FormServices FormServices
+<h3>FormMaker</h3>
+<EditForm @ref="@eform" Model="@this.form" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="formId">Form Id</label>
+        <input type="text" class="form-control" id="formId" @bind="form.Id" />
+    </div>
+
+    <div class="form-group">
+        <label for="version">Version</label>
+        <input type="text" class="form-control" id="version" @bind="@form.Version" />
+    </div>
+
+    <div class="form-group">
+        <label for="formName">Form Name</label>
+        <input type="text" class="form-control" id="formName" @bind="@form.FormName" />
+    </div>
+
+    <div class="form-group">
+        <label for="displayName">Display Name</label>
+        <input type="text" class="form-control" id="displayName" @bind="@form.DisplayName" />
+    </div>
+
+    <div class="form-group">
+        <label for="sections">Sections</label>
+        <div>
+            @foreach (var section in form.Sections)
+            {
+                <div class="section">
+                    <div class="form-group">
+                        <label for="sectionId">Section Id</label>
+                        <input type="text" class="form-control" id="sectionId" @bind="section.Id" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sectionVersion">Version</label>
+                        <input type="text" class="form-control" id="sectionVersion" @bind="section.Version" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sectionName">Section Name</label>
+                        <input type="text" class="form-control" id="sectionName" @bind="section.SectionName" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sectionDisplayName">Display Name</label>
+                        <input type="text" class="form-control" id="sectionDisplayName" @bind="section.DisplayName" />
+                    </div>
+
+                    <!-- Add more properties for the Section object as needed -->
+
+                    <!-- Questions -->
+                    <div class="form-group">
+                        <label for="questions">Questions</label>
+                        <div>
+                            @foreach (var question in section.Questions)
+                            {
+                                <div class="question">
+                                    <div class="form-group">
+                                        <label for="questionId">Question Id</label>
+                                        <input type="text" class="form-control" id="questionId" @bind="@question.Id" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="questionVersion">Version</label>
+                                        <input type="text" class="form-control" id="questionVersion" @bind="@question.Version" />
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="questionDisplayName">Display Name</label>
+                                        <input type="text" class="form-control" id="questionDisplayName" @bind="@question.DisplayName" />
+                                    </div>
+
+                                    <!-- Add more properties for the Question object as needed -->
+
+                                    <!-- Input value -->
+                                    <div class="form-group">
+                                        <label for="questionValue">Value</label>
+                                        <input type="text" class="form-control" id="questionValue" @bind="@question.Value" />
+                                    </div>
+                                </div>
+                            }
+                            <div>
+                                <p>Add Question</p>
+                                <button type="button" class="btn btn-primary" @onclick="() => AddQuestion(section)">Add Question</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div>
+                <p>Add Sections</p>
+                <button type="button" class="btn btn-primary" @onclick="AddSection">Add Section</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Create</button>
+    </div>
+</EditForm>
+<button @onclick="GetForm">Get Form</button>
+
+
+
+
+
+
+@code {
+    public Form form { get; set; } = new Form();
+    private EditForm eform;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        var all = FormServices.GetAllForms();
+        Console.WriteLine("Count: " + all.Count);
+        StringBuilder sb = new StringBuilder();
+        foreach (var form in all)
+        {
+            sb.AppendLine(form.FormName);
+        }
+        Console.WriteLine(sb.ToString());
+    }
+
+    public void AddSection()
+    {
+        form.Sections.Add(new Section());
+    }
+    
+    public void AddQuestion(Section parent)
+    {
+        parent.Questions.Add(new Question()
+        {
+            
+        });
+    }
+    public void GetForm()
+    {
+        this.form = FormServices.GetForm(form.FormName);
+        form ??= new Form();
+        eform.Model = form;
+    }
+    
+    public void SaveForm()
+    {
+        FormServices.AddForm(this.form);
+    }
+    private void HandleValidSubmit()
+    {
+        
+    // Here, you can access the created form object and perform further actions
+    // such as saving it to a database or passing it to other components.
+
+    // For example, you can print the form details to the console:
+        Console.WriteLine($"Form Id: {form.Id}");
+        Console.WriteLine($"Version: {form.Version}");
+        Console.WriteLine($"Form Name: {form.FormName}");
+        Console.WriteLine($"Display Name: {form.DisplayName}");
+
+        foreach (var section in form.Sections)
+        {
+            Console.WriteLine($"Section Id: {section.Id}");
+            Console.WriteLine($"Version: {section.Version}");
+            Console.WriteLine($"Section Name: {section.SectionName}");
+            Console.WriteLine($"Display Name: {section.DisplayName}");
+
+            foreach (var question in section.Questions)
+            {
+                Console.WriteLine($"Question Id: {question.Id}");
+                Console.WriteLine($"Version: {question.Version}");
+                Console.WriteLine($"Display Name: {question.DisplayName}");
+                Console.WriteLine($"Value: {question.Value}");
+            }
+        }
+        
+
+    // Perform any additional logic here based on your requirements
+        SaveForm();
+    }
+    
+}
