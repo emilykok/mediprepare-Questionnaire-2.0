@@ -1,0 +1,180 @@
+{
+   "Id":"00000000-0000-0000-0000-000000000000",
+   "Version":"1.0",
+   "FormName":"Questionnaire",
+   "DisplayName":"Welcome",
+   "Sections":[
+      {
+         "Id":"00000000-0000-0000-0000-000000000000",
+         "Version":"1.0",
+         "SectionName":"Introduction",
+         "DisplayName":"Introduction",
+         "Questions":[
+            {
+               "Id":"00000000-0000-0000-0000-000000000000",
+               "Version":"1.0",
+               "DisplayName":"Welcome",
+               "Type":0,
+               "Text":"Welcome to the questionnaire. Count on 15 to 20 minutes. With your answers, your doctor will have a good overview of your health history and what's going on. At the end of the list is space to indicate what you would like to discuss with your doctor."
+            }
+         ],
+         "DependsOnSection":null
+      },
+      {
+         "Id":"00000000-0000-0000-0000-000000000001",
+         "Version":"1.0",
+         "SectionName":"PersonalInfo",
+         "DisplayName":"Personal Information",
+         "Questions":[
+            {
+               "Id":"00000000-0000-0000-0000-000000000001",
+               "Version":"1.0",
+               "DisplayName":"Firstname",
+               "Type":0
+            },
+            {
+               "Id":"00000000-0000-0000-0000-000000000002",
+               "Version":"1.0",
+               "DisplayName":"Lastname",
+               "Type":0
+            },
+            {
+               "Id":"00000000-0000-0000-0000-000000000003",
+               "Version":"1.0",
+               "DisplayName":"Gender",
+               "Type":4,
+               "Options":[
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000004",
+                     "Option":"Male"
+                  },
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000005",
+                     "Option":"Female"
+                  },
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000006",
+                     "Option":"Other"
+                  }
+               ]
+            },
+            {
+               "Id":"00000000-0000-0000-0000-000000000007",
+               "Version":"1.0",
+               "DisplayName":"Birth Year",
+               "Type":2
+            }
+         ],
+         "DependsOnSection":null
+      },
+      {
+         "Id":"00000000-0000-0000-0000-000000000008",
+         "Version":"1.0",
+         "SectionName":"ComplaintsNow",
+         "DisplayName":"Complaints Now",
+         "Questions":[
+            {
+               "Id":"00000000-0000-0000-0000-000000000009",
+               "Version":"1.0",
+               "DisplayName":"Complaint",
+               "Type":3,
+               "Options":[
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000010",
+                     "Option":"Option 1"
+                  },
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000011",
+                     "Option":"Option 2"
+                  },
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000012",
+                     "Option":"Option 3"
+                  }
+               ]
+            },
+            {
+               "Id":"00000000-0000-0000-0000-000000000013",
+               "Version":"1.0",
+               "DisplayName":"When did it start",
+               "Type":2
+            },
+            {
+               "Id":"00000000-0000-0000-0000-000000000014",
+               "Version":"1.0",
+               "DisplayName":"Did you have this before",
+               "Type":4,
+               "Options":[
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000015",
+                     "Option":"Yes"
+                  },
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000016",
+                     "Option":"No"
+                  }
+               ]
+            },
+            {
+               "Id":"00000000-0000-0000-0000-000000000017",
+               "Version":"1.0",
+               "DisplayName":"Would you like to give more information",
+               "Type":0
+            }
+         ],
+         "DependsOnSection":null
+      },
+      {
+         "Id":"00000000-0000-0000-0000-000000000018",
+         "Version":"1.0",
+         "SectionName":"BMI",
+         "DisplayName":"BMI",
+         "Questions":[
+            {
+               "Id":"00000000-0000-0000-0000-000000000019",
+               "Version":"1.0",
+               "DisplayName":"Weight (in kilograms)",
+               "Type":1
+            },
+            {
+               "Id":"00000000-0000-0000-0000-000000000020",
+               "Version":"1.0",
+               "DisplayName":"Height (in centimeters)",
+               "Type":1
+            }
+         ],
+         "DependsOnSection":null
+      },
+      {
+         "Id":"00000000-0000-0000-0000-000000000021",
+         "Version":"1.0",
+         "SectionName":"Smoking",
+         "DisplayName":"Smoking pack-years",
+         "Questions":[
+            {
+               "Id":"00000000-0000-0000-0000-000000000022",
+               "Version":"1.0",
+               "DisplayName":"Do you smoke?",
+               "Type":4,
+               "Options":[
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000023",
+                     "Option":"Yes"
+                  },
+                  {
+                     "Id":"00000000-0000-0000-0000-000000000024",
+                     "Option":"No"
+                  }
+               ]
+            },
+            {
+               "Id":"00000000-0000-0000-0000-000000000025",
+               "Version":"1.0",
+               "DisplayName":"How many?",
+               "Type":1
+            }
+         ],
+         "DependsOnSection":null
+      }
+   ]
+}

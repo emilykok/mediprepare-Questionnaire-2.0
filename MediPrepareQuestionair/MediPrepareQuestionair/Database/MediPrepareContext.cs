@@ -151,13 +151,13 @@ public class QuestionOptions
 }
 public enum QuestionType
 {
-    Text,
-    Numeric,
-    Date,
-    MultipleChoice,
-    SelectOne,
-    Map_Body,
-    ButtonGroup,
+    Text = 0,
+    Numeric = 1,
+    Date = 2,
+    MultipleChoice = 3,
+    SelectOne = 4,
+    Map_Body = 5,
+    ButtonGroup = 6,
 } 
 public class QuestionEventInput
 {

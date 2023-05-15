@@ -1,0 +1,44 @@
+@namespace MediPrepareQuestionair.Components
+
+
+<h5>@label</h5>
+
+@foreach (var value in values)
+{
+    <div class="form-check">
+        <input class="form-check-input" type="@(IsCheckboxes ? "checkbox" : "radio")" disabled="@isDisabled" id="@value" value="@value" checked="@(selectedValue == value)" @onclick="() => ToggleCheckbox(value)" />
+        <label class="form-check-label" for="@value"> @value </label>
+    </div>
+}
+
+@code {
+    
+    [Parameter] 
+    public List<string> values { get; set; } = new List<string> { "Male", "Female", "Other" };
+    [Parameter]
+    public string selectedValue { get; set; }
+    [Parameter]
+    public bool isDisabled { get; set; } = false;
+    [Parameter]
+    public EventCallback<string> selectedValueChanged { get; set; }
+    [Parameter]
+    public string label { get; set; } = "Select One";
+    [Parameter]
+    public bool IsCheckboxes { get; set; } = false;
+    
+    
+
+    void ToggleCheckbox(string value)
+    {
+        
+        if (selectedValue == value)
+        {
+            selectedValue = null; // Uncheck the checkbox
+        }
+        else
+        {
+            selectedValue = value; // Check the checkbox
+        }
+        selectedValueChanged.InvokeAsync(selectedValue);
+    }
+}

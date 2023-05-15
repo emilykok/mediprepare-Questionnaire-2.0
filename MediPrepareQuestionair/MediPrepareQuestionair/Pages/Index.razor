@@ -1,4 +1,7 @@
 ﻿@page "/"
+@using MediPrepareQuestionair.Database
+@using MediPrepareQuestionair.Services
+@using System.Text.Json
 
 <PageTitle>Index</PageTitle>
 
@@ -7,3 +10,31 @@
 Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?"/>
+
+<MediSelectOne values="values" isDisabled="false" label="@value" selectedValueChanged="OnValueChanged"/>
+
+<p>@value</p>
+
+@code{
+
+    protected override void OnInitialized()
+    {
+        // Form form = JsonSerializer.Deserialize<Form>(File.ReadAllText("./PremadeQuestions/Mediprep_test.json"));
+        // Console.WriteLine(JsonSerializer.Serialize(form));
+        base.OnInitialized();
+    }
+    public bool disabled { get; set; } = false;
+    public string value { get; set; } = "Cascade";
+    public List<string> values { get; set; } = new List<string>() { "1", "2", "3" };
+    public void OnValueChanged(string value)
+    {
+        this.value = value;
+        if (value == "3")
+        {
+            disabled = true;
+            
+        }
+        StateHasChanged();
+    }
+
+}
