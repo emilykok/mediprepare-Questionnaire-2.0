@@ -1,4 +1,6 @@
-﻿using MediPrepareQuestionair.Data;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+using MediPrepareQuestionair.Data;
 using MediPrepareQuestionair.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,15 +39,38 @@ public class MediPrepareContext : DbContext
         modelBuilder.Entity<Section>().HasOne<Section>(x => x.DependsOnSection); //Can be null if no dependency
         
         modelBuilder.Entity<Question>().HasKey(x => x.Id);
-        modelBuilder.Entity<Question>().HasDiscriminator<string>("Type")
-            .HasValue<Question>("Question")
-            .HasValue<DateTimeQuestion>("DateTimeQuestion");
+        modelBuilder.Entity<Question>().OwnsMany<QuestionOptions>(x => x.Options);
+
+        modelBuilder.Entity<AnswerForm>().HasMany<QuestionEventInput>(x => x.QuestionEventInputs);
+        modelBuilder.Entity<AnswerForm>().HasKey(x => x.Id);
+        modelBuilder.Entity<AnswerForm>().HasOne<Form>(x => x.ReferenceForm);
+        modelBuilder.Entity<AnswerForm>()
+            .HasOne<Patient>(x => x.ReferencePatient)
+            .WithMany(x=>x.Forms);
+        modelBuilder.Entity<AnswerForm>().HasMany<AnswerSection>();
         
-        modelBuilder.Entity<DateTimeQuestion>().Property(x => x.Value).HasColumnName("Value");
+        modelBuilder.Entity<AnswerSection>().HasMany<AnswerQuestion>();
+        modelBuilder.Entity<AnswerSection>().HasKey(x => x.Id);
+        modelBuilder.Entity<AnswerSection>().HasOne<Section>(x => x.ReferenceSection);
         
-        modelBuilder.Entity<UserForm>().HasMany<QuestionEventInput>(x => x.QuestionEventInputs);
-        modelBuilder.Entity<UserForm>().HasKey(x => x.Id);
-        modelBuilder.Entity<UserForm>().HasOne<Form>(x => x.ReferenceForm);
+        modelBuilder.Entity<AnswerQuestion>().HasKey(x => x.Id);
+        modelBuilder.Entity<AnswerQuestion>().HasOne<Question>(x => x.ReferenceQuestion);
+        modelBuilder.Entity<AnswerQuestion>().OwnsMany(x => x.Value);
+        
+        
+        
+        
+        
+        
+        
+        modelBuilder.Entity<QuestionEventInput>().HasKey(x => x.Id);
+        modelBuilder.Entity<Patient>().HasKey(x => x.Id);
+        
+        
+        
+        
+        
+        
         base.OnModelCreating(modelBuilder);
     }
     
@@ -54,31 +79,15 @@ public class MediPrepareContext : DbContext
     public DbSet<Form> Forms { get; set; } = null!;
     public DbSet<Section> Sections { get; set; } = null!;
     public DbSet<Question> Questions { get; set; } = null!;
-    public DbSet<DateTimeQuestion> DateTimeQuestions { get; set; } = null!;
-    public DbSet<UserForm> UserForms { get; set; } = null!;
-
-
-
-
+    
+    public DbSet<AnswerForm> AnswerForms { get; set; } = null!;
+    public DbSet<AnswerSection> AnswerSections { get; set; } = null!;
+    public DbSet<AnswerQuestion> AnswerQuestions { get; set; } = null!;
 }
 
 //User Generates a Form by asking for the form
 public class Form
 {
-    public Form(Guid Id, string Version, string FormName, string DisplayName, List<Section> Sections)
-    {
-        this.Id = Id;
-        this.Version = Version;
-        this.FormName = FormName;
-        this.DisplayName = DisplayName;
-        this.Sections = Sections;
-    }
-
-    public Form()
-    {
-        Id = Guid.NewGuid();
-    }
-
     public Guid Id { get; set; } = new Guid();
     public string Version { get; set; }
     public string FormName { get; set; }
@@ -95,19 +104,11 @@ public class Form
     }
 }
 
+/// <summary>
+/// Section is a part of a form, it can be a subform or a part of a form
+/// </summary>
 public class Section
 {
-    public Section(Guid Id, string Version, string SectionName, string DisplayName, List<Question> Questions, Section? DependsOnSection)
-    {
-        this.Id = Id;
-        this.Version = Version;
-        this.SectionName = SectionName;
-        this.DisplayName = DisplayName;
-        this.Questions = Questions;
-        this.DependsOnSection = DependsOnSection;
-    }
-    public Section(){}
-
     public Guid Id { get; set; }
     public string Version { get; set; }
     public string SectionName { get; set; }
@@ -125,101 +126,41 @@ public class Section
         DependsOnSection = this.DependsOnSection;
     }
 }
-
+/// <summary>
+/// The concrete question that is asked to the user
+/// </summary>
 public class Question
 {
-    protected Question(Guid Id, string Version, string DisplayName, string Type)
-    {
-        this.Id = Id;
-        this.Version = Version;
-        this.DisplayName = DisplayName;
-        this.Type = Type;
-    }
-    public Question(){}
-
-    public string Value { get; set; } = null;
     public Guid Id { get; set; }
     public string Version { get; set; }
     public string DisplayName { get; set; }
-    public string Type { get; set; }
-
-    public void Deconstruct(out Guid Id, out string Version, out string DisplayName, out string Type)
+    public QuestionType Type { get; set; }
+    public List<QuestionOptions> Options { get; set; } = new List<QuestionOptions>();
+    public void Deconstruct(out Guid Id, out string Version, out string DisplayName, out QuestionType Type)
     {
         Id = this.Id;
         Version = this.Version;
         DisplayName = this.DisplayName;
         Type = this.Type;
-    }
-};
-
-public class DateTimeQuestion : Question
-{
-    public DateTimeQuestion(Guid Id, string Version, string DisplayName, string Type) : base(Id,
-        Version, DisplayName, Type)
-    {
-    }
-    public DateTimeQuestion(){} //For EF
-
-    public DateTime DateValue
-    {
-        get => DateTime.Parse(base.Value);
-        set => base.Value = value.ToString();
-    }
-
-    public void Deconstruct(out Guid Id, out string Version, out string DisplayName, out string Type)
-    {
-        Id = this.Id;
-        Version = this.Version;
-        DisplayName = this.DisplayName;
-        Type = this.Type;
-    }
-};
-
-//User Generated Event
-public class UserForm
-{
-    public UserForm(Guid Id, Form? ReferenceForm, Patient ReferencePatient, DateTime TimeStamp, string SessionId, List<QuestionEventInput> QuestionEventInputs)
-    {
-        this.Id = Id;
-        this.ReferenceForm = ReferenceForm;
-        this.ReferencePatient = ReferencePatient;
-        this.TimeStamp = TimeStamp;
-        this.SessionId = SessionId;
-        this.QuestionEventInputs = QuestionEventInputs;
-    }
-    public UserForm(){} 
-
-    public Guid Id { get; set; }
-    public Form? ReferenceForm { get; set; }
-    public Patient ReferencePatient { get; set; }
-    public DateTime TimeStamp { get; set; }
-    public string SessionId { get; set; }
-    public List<QuestionEventInput> QuestionEventInputs { get; set; }
-
-    public void Deconstruct(out Guid Id, out Form? ReferenceForm, out Patient ReferencePatient, out DateTime TimeStamp, out string SessionId, out List<QuestionEventInput> QuestionEventInputs)
-    {
-        Id = this.Id;
-        ReferenceForm = this.ReferenceForm;
-        ReferencePatient = this.ReferencePatient;
-        TimeStamp = this.TimeStamp;
-        SessionId = this.SessionId;
-        QuestionEventInputs = this.QuestionEventInputs;
     }
 }
-
+public class QuestionOptions
+{
+    public Guid Id { get; set; }
+    public string Option { get; set; }
+}
+public enum QuestionType
+{
+    Text,
+    Numeric,
+    Date,
+    MultipleChoice,
+    SelectOne,
+    Map_Body,
+    ButtonGroup,
+} 
 public class QuestionEventInput
 {
-    public QuestionEventInput(Guid Id, string EventName, DateTime TimeStamp, string SessionId, Guid QuestionId, string QuestionVersion)
-    {
-        this.Id = Id;
-        this.EventName = EventName;
-        this.TimeStamp = TimeStamp;
-        this.SessionId = SessionId;
-        this.QuestionId = QuestionId;
-        this.QuestionVersion = QuestionVersion;
-    }
-    public QuestionEventInput(){}
-
     public Guid Id { get; set; }
     public string EventName { get; set; }
     public DateTime TimeStamp { get; set; }
@@ -237,7 +178,61 @@ public class QuestionEventInput
         QuestionVersion = this.QuestionVersion;
     }
 }
+/// <summary>
+/// For used for answering Questions
+/// </summary>
+public class AnswerForm
+{
+    public Guid Id { get; set; }
+    public Form? ReferenceForm { get; set; }
+    /// <summary>
+    /// Patient bound to the Form
+    /// </summary>
+    public Patient? ReferencePatient { get; set; }
+    /// <summary>
+    /// Start Time of the Form
+    /// </summary>
+    public DateTime TimeStamp { get; set; }
+    /// <summary>
+    /// Reference to the Session given by Remote server
+    /// </summary>
+    public string? SessionId { get; set; }
+    /// <summary>
+    /// Event Inputs like Resume, Quit, Input, Focus, Blur
+    /// </summary>
+    public List<QuestionEventInput>? QuestionEventInputs { get; set; }
+    /// <summary>
+    /// Sections of the Form
+    /// </summary>
+    public List<AnswerSection>? AnswerSections { get; set; } = new List<AnswerSection>();
+}
 
+public class AnswerSection
+{
+    public Guid Id { get; set; }
+    public Section? ReferenceSection { get; set; }
+    public List<AnswerQuestion>? AnswerQuestions { get; set; } = new List<AnswerQuestion>();
+}
+/// <summary>
+/// Question Answered by the User
+/// Has a Reference to the Question for backward compatibility
+/// </summary>
+public class AnswerQuestion
+{
+    public Guid Id { get; set; }
+    public Question? ReferenceQuestion { get; set; }
+    /// <summary>
+    /// Can have multiple values
+    /// </summary>
+    public List<QuestionAnswerValue> Value { get; set; } = new List<QuestionAnswerValue>();
+}
+
+public class QuestionAnswerValue
+{
+    public Guid Id { get; set; }
+    public string Key { get; set; }
+    public string Value { get; set; }
+}
 
 
 

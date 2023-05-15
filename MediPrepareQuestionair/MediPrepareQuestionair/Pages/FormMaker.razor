@@ -77,14 +77,6 @@
                                         <label for="questionDisplayName">Display Name</label>
                                         <input type="text" class="form-control" id="questionDisplayName" @bind="@question.DisplayName" />
                                     </div>
-
-                                    <!-- Add more properties for the Question object as needed -->
-
-                                    <!-- Input value -->
-                                    <div class="form-group">
-                                        <label for="questionValue">Value</label>
-                                        <input type="text" class="form-control" id="questionValue" @bind="@question.Value" />
-                                    </div>
                                 </div>
                             }
                             <div>
@@ -177,7 +169,6 @@
                 Console.WriteLine($"Question Id: {question.Id}");
                 Console.WriteLine($"Version: {question.Version}");
                 Console.WriteLine($"Display Name: {question.DisplayName}");
-                Console.WriteLine($"Value: {question.Value}");
             }
         }
         

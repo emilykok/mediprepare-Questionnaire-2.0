@@ -14,6 +14,6 @@ public class Patient
     public string ZipCode { get; set; } = null!;
     public string Country { get; set; } = null!;
     
-    public List<UserForm> Forms { get; set; } = null!;
+    public List<AnswerForm> Forms { get; set; } = null!;
     
 }
