@@ -1,2 +1,18 @@
+@using Microsoft.AspNetCore.Components
 @namespace MediPrepareQuestionair.Components
+
+@if (!string.IsNullOrEmpty(QuestionText))
+{
+    <div>
+        <h3>@QuestionText</h3>
+        <BootstrapInputNumber TValue="int?" Value="@Answer" ValueChanged="@((int? value) => Answer = value)" Step="1" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string QuestionText { get; set; }
+
+    private int? Answer { get; set; }
+}
 
