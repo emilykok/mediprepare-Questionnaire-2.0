@@ -1,0 +1,17 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Components
+
+@if (!string.IsNullOrEmpty(QuestionText))
+{
+    <div>
+        <h3>@QuestionText</h3>
+        <BootstrapDatePicker Value="@Answer" ValueChanged="@((DateTime? value) => Answer = value)" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string QuestionText { get; set; }
+
+    private DateTime? Answer { get; set; }
+}

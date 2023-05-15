@@ -1,0 +1,39 @@
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Components
+
+@if (!string.IsNullOrEmpty(QuestionText) && Options != null && Options.Count > 0)
+{
+    <div>
+        <h3>@QuestionText</h3>
+        <ul>
+            <BootstrapCheckboxGroup TItem="string" TValue="List<string>" @bind-Value="SelectedOptions">
+                @foreach (var option in Options)
+                {
+                    <li>
+                        <BootstrapCheckbox TValue="string" Value="@option.Value" Id="@($"option_{option.Id}")">
+                            <label for="@($"option_{option.Id}")">@option.Text</label>
+                        </BootstrapCheckbox>
+                    </li>
+                }
+            </BootstrapCheckboxGroup>
+        </ul>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string QuestionText { get; set; }
+
+    [Parameter]
+    public List<Option> Options { get; set; }
+
+    [Parameter]
+    public List<string> SelectedOptions { get; set; } = new List<string>();
+
+    public class Option
+    {
+        public int Id { get; set; }
+        public string Text { get; set; }
+        public string Value { get; set; }
+    }
+}

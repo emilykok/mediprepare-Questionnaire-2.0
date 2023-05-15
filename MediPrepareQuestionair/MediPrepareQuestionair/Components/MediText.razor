@@ -1,0 +1,17 @@
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Components
+
+@if (!string.IsNullOrEmpty(QuestionText))
+{
+    <div>
+        <h3>@QuestionText</h3>
+        <BootstrapInputText TValue="string" @bind-Value="Answer" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string QuestionText { get; set; }
+
+    private string Answer { get; set; }
+}
