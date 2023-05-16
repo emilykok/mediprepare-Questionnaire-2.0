@@ -1,11 +1,10 @@
 @using System.Globalization
-@using Microsoft.AspNetCore.Components
 
 @if (!string.IsNullOrEmpty(QuestionText))
 {
-    <div>
+    <div class="form-check">
         <h3>@QuestionText</h3>
-        <BootstrapDatePicker Value="@Answer" ValueChanged="@((DateTime? value) => Answer = value)" />
+        <input type="date" @bind="Answer" />
     </div>
 }
 
