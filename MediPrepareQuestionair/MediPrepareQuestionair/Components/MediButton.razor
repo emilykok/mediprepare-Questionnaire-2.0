@@ -1,6 +1,6 @@
 ﻿@using System.Text
 
-<button style="@style" class="@GetClass()" onclick="@ButtonClick">@Text</button>
+<button style="@style color=blue" class="@GetClass()" onclick="@ButtonClick">@Text</button>
 
 @code {
     [Parameter] public Action OnClick { get; set; } = () => { };

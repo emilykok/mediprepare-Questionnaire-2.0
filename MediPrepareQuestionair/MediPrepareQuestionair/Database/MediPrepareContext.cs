@@ -112,9 +112,10 @@ public class Section
     public Guid Id { get; set; }
     public string Version { get; set; }
     public string SectionName { get; set; }
-    public string DisplayName { get; set; }
+    public string DisplayName { get; set; } 
     public List<Question> Questions { get; set; } = new List<Question>();
     public Section? DependsOnSection { get; set; }
+    public bool IsRepeatable { get; set; }
 
     public void Deconstruct(out Guid Id, out string Version, out string SectionName, out string DisplayName, out List<Question> Questions, out Section? DependsOnSection)
     {
@@ -188,7 +189,7 @@ public class AnswerForm
     /// <summary>
     /// Patient bound to the Form
     /// </summary>
-    public Patient? ReferencePatient { get; set; }
+    public Patient? ReferencePatient { get; set; } 
     /// <summary>
     /// Start Time of the Form
     /// </summary>
