@@ -1,21 +1,17 @@
 @using System.Collections.Generic
-@using Microsoft.AspNetCore.Components
 
 @if (!string.IsNullOrEmpty(QuestionText) && Options != null && Options.Count > 0)
 {
-    <div>
+    <div class="form-check">
         <h3>@QuestionText</h3>
         <ul>
-            <BootstrapCheckboxGroup TItem="string" TValue="List<string>" @bind-Value="SelectedOptions">
-                @foreach (var option in Options)
-                {
-                    <li>
-                        <BootstrapCheckbox TValue="string" Value="@option.Value" Id="@($"option_{option.Id}")">
-                            <label for="@($"option_{option.Id}")">@option.Text</label>
-                        </BootstrapCheckbox>
-                    </li>
-                }
-            </BootstrapCheckboxGroup>
+            @foreach (var option in Options)
+            {
+                <li>
+                    <input class="form-check-input" type="radio" name="QuestionId" value="@option.Value" id="@($"option_{option.Id}")" />
+                    <label class="form-check-label" for="@($"option_{option.Id}")">@option.Text</label>
+                </li>
+            }
         </ul>
     </div>
 }
@@ -26,9 +22,6 @@
 
     [Parameter]
     public List<Option> Options { get; set; }
-
-    [Parameter]
-    public List<string> SelectedOptions { get; set; } = new List<string>();
 
     public class Option
     {

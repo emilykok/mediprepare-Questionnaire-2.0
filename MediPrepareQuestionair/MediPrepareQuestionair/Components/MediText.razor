@@ -1,11 +1,10 @@
 @using System.Collections.Generic
-@using Microsoft.AspNetCore.Components
 
 @if (!string.IsNullOrEmpty(QuestionText))
 {
-    <div>
+    <div class="form-check">
         <h3>@QuestionText</h3>
-        <BootstrapInputText TValue="string" @bind-Value="Answer" />
+        <input class="form-check-input" type="text" @bind="Answer" />
     </div>
 }
 
