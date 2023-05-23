@@ -1,19 +1,44 @@
 ﻿@inherits LayoutComponentBase
 
-<PageTitle>MediPrepareQuestionair</PageTitle>
+<PageTitle>MediPrepareQuestionComponentair</PageTitle>
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
+<MudLayout>
+    <MudAppBar>
+        <MudButton @onclick="@ToggleDarkMode"> MediPrepare</MudButton>
+    </MudAppBar>
+    <MudDrawer Open="@_isOpen">
+        <MudSwitch @bind-Checked="@_isDarkMode" Color="Color.Primary" Class="ma-4" T="bool" Label="Toggle Light/Dark Mode"/>
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code{
+    private MudTheme _theme = new()
+    {
+        Palette = new PaletteLight()
+        {
+        },
+        PaletteDark = new PaletteDark()
+        {
+        },
+        LayoutProperties = new LayoutProperties()
+        {
+            DrawerWidthLeft = "260px",
+            DrawerWidthRight = "300px"
+        }
+    };
+    private bool _isDarkMode;
+    private bool _isOpen;
+    
+    private void ToggleDarkMode()
+    {
+        _isOpen = !_isOpen;
+    }
+}

@@ -215,15 +215,15 @@ public class AnswerSection
     public List<AnswerQuestion>? AnswerQuestions { get; set; } = new List<AnswerQuestion>();
 }
 /// <summary>
-/// Question Answered by the User
-/// Has a Reference to the Question for backward compatibility
+/// QuestionComponent Answered by the User
+/// Has a Reference to the QuestionComponent for backward compatibility
 /// </summary>
 public class AnswerQuestion
 {
     public Guid Id { get; set; }
     public Question? ReferenceQuestion { get; set; }
     /// <summary>
-    /// Can have multiple values
+    /// Can have multiple SelectableValues
     /// </summary>
     public List<QuestionAnswerValue> Value { get; set; } = new List<QuestionAnswerValue>();
 }

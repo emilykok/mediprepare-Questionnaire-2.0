@@ -119,7 +119,7 @@ namespace MediPrepareQuestionair.Migrations
                     b.ToTable("Forms");
                 });
 
-            modelBuilder.Entity("MediPrepareQuestionair.Database.Question", b =>
+            modelBuilder.Entity("MediPrepareQuestionair.Database.QuestionComponent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -281,7 +281,7 @@ namespace MediPrepareQuestionair.Migrations
                         .WithMany()
                         .HasForeignKey("AnswerSectionId1");
 
-                    b.HasOne("MediPrepareQuestionair.Database.Question", "ReferenceQuestion")
+                    b.HasOne("MediPrepareQuestionair.Database.QuestionComponent", "ReferenceQuestion")
                         .WithMany()
                         .HasForeignKey("ReferenceQuestionId");
 
@@ -332,7 +332,7 @@ namespace MediPrepareQuestionair.Migrations
                     b.Navigation("ReferenceSection");
                 });
 
-            modelBuilder.Entity("MediPrepareQuestionair.Database.Question", b =>
+            modelBuilder.Entity("MediPrepareQuestionair.Database.QuestionComponent", b =>
                 {
                     b.HasOne("MediPrepareQuestionair.Database.Section", null)
                         .WithMany("Questions")

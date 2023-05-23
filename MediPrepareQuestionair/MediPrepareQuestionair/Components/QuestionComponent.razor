@@ -1,0 +1,43 @@
+﻿@using MediPrepareQuestionair.Database
+
+
+@if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Text)
+{
+    <MediText QuestionText="@answerQuestion?.ReferenceQuestion?.DisplayName" @bind-Value="@answerQuestion.Value[0].Value"/>
+}
+else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.SelectOne)
+{
+    <MediSelectOne @bind-Value="@answerQuestion.Value[0].Value" SelectableValues="answerQuestion?.ReferenceQuestion?.Options.Select(x=>x.Option).ToList()" Label="@answerQuestion?.ReferenceQuestion?.DisplayName" />
+}
+
+
+@code {
+    [Parameter]
+    public AnswerQuestion answerQuestion { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        //Move this to the class
+        answerQuestion.Value = new();
+        if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Text)
+        {
+            answerQuestion.Value.Add(new QuestionAnswerValue()
+            {
+                Value = "",
+                Key = answerQuestion.ReferenceQuestion.DisplayName
+            });
+        }
+        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.SelectOne)
+        {
+            answerQuestion.Value.Add(new QuestionAnswerValue()
+            {
+                Value = answerQuestion?.ReferenceQuestion?.Options?.FirstOrDefault()?.Option,
+                Key = answerQuestion?.ReferenceQuestion?.DisplayName
+            });
+        }
+        
+    }
+    
+
+}

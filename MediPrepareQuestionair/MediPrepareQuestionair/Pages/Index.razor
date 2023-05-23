@@ -7,34 +7,59 @@
 
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?"/>
-
-<MediSelectOne values="values" isDisabled="false" label="@value" selectedValueChanged="OnValueChanged"/>
-
 <p>@value</p>
+
+<MediText @bind-Value="value" QuestionText="How?"/>
+
+<QuestionComponent answerQuestion="answerQuestion" />
+<QuestionComponent answerQuestion="SelectOneAnswerQuestion" />
+
+<button @onclick="Callback">Knop</button>
 
 @code{
 
     protected override void OnInitialized()
     {
-        // Form form = JsonSerializer.Deserialize<Form>(File.ReadAllText("./PremadeQuestions/Mediprep_test.json"));
-        // Console.WriteLine(JsonSerializer.Serialize(form));
+        answerQuestion.ReferenceQuestion = question;
         base.OnInitialized();
     }
     public bool disabled { get; set; } = false;
-    public string value { get; set; } = "Cascade";
+    public string value { get; set; } = "";
+    public string value2 { get; set; } = "";
     public List<string> values { get; set; } = new List<string>() { "1", "2", "3" };
+    public Question question { get; set; } = new Question() { DisplayName = "How are you?" };
+    public AnswerQuestion answerQuestion { get; set; } = new();
+    public AnswerQuestion SelectOneAnswerQuestion { get; set; } = new AnswerQuestion()
+    {
+        ReferenceQuestion = new Question()
+        {
+            DisplayName = "How are you?",
+            Type = QuestionType.SelectOne,
+            Options = new List<QuestionOptions>()
+            {
+                new QuestionOptions() {Option = "1"},
+                new QuestionOptions() {Option = "2"},
+                new QuestionOptions() {Option = "3"}
+            }
+        }
+    };
     public void OnValueChanged(string value)
     {
-        this.value = value;
-        if (value == "3")
-        {
-            disabled = true;
-            
-        }
-        StateHasChanged();
+        // this.value = value;
+        // if (value == "3")
+        // {
+        //     disabled = true;
+        //     
+        // }
+        // StateHasChanged();
+    }
+
+    private void Callback()
+    {
+        //Get all the answers from the form
+        Console.WriteLine(value);
+        Console.WriteLine(answerQuestion?.Value[0]?.Value);
+        Console.WriteLine(SelectOneAnswerQuestion?.Value[0]?.Value);
     }
 
 }

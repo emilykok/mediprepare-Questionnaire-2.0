@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 using MediPrepareQuestionair.Data;
 using MediPrepareQuestionair.Database;
 using MediPrepareQuestionair.Services;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddDbContext<MediPrepareContext>();
 builder.Services.AddScoped<FormServices>();
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 

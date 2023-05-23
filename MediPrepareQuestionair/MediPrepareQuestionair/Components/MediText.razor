@@ -2,15 +2,32 @@
 
 @if (!string.IsNullOrEmpty(QuestionText))
 {
-    <div class="form-check">
-        <h3>@QuestionText</h3>
-        <input class="form-check-input" type="text" @bind="Answer" />
+    
+    <label for="basic-url" class="form-label">@QuestionText</label>
+    <div class="input-group mb-3">
+        <InputText class="form-control" type="text" disabled="@isDisabled" @bind-Value="@Value" />
     </div>
 }
 
 @code {
     [Parameter]
     public string QuestionText { get; set; }
+    [Parameter]
+    public bool isDisabled { get; set; } = false;
+    
+    private string _value;
 
-    private string Answer { get; set; }
+    [Parameter]
+    public string Value
+    {
+        get => _value;
+        set
+        {
+            if (_value == value ) return;
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+        }
+    }
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }   
 }

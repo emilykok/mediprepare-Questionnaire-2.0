@@ -56,15 +56,15 @@
 
                     <!-- Add more properties for the Section object as needed -->
 
-                    <!-- Questions -->
+                    <!-- QuestionComponents -->
                     <div class="form-group">
-                        <label for="questions">Questions</label>
+                        <label for="questions">QuestionComponents</label>
                         <div>
                             @foreach (var question in section.Questions)
                             {
                                 <div class="question">
                                     <div class="form-group">
-                                        <label for="questionId">Question Id</label>
+                                        <label for="questionId">QuestionComponent Id</label>
                                         <input type="text" class="form-control" id="questionId" @bind="@question.Id" />
                                     </div>
 
@@ -80,8 +80,8 @@
                                 </div>
                             }
                             <div>
-                                <p>Add Question</p>
-                                <button type="button" class="btn btn-primary" @onclick="() => AddQuestion(section)">Add Question</button>
+                                <p>Add QuestionComponent</p>
+                                <button type="button" class="btn btn-primary" @onclick="() => AddQuestion(section)">Add QuestionComponent</button>
                             </div>
                         </div>
                     </div>
@@ -166,7 +166,7 @@
 
             foreach (var question in section.Questions)
             {
-                Console.WriteLine($"Question Id: {question.Id}");
+                Console.WriteLine($"QuestionComponent Id: {question.Id}");
                 Console.WriteLine($"Version: {question.Version}");
                 Console.WriteLine($"Display Name: {question.DisplayName}");
             }
