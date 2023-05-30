@@ -119,7 +119,7 @@ namespace MediPrepareQuestionair.Migrations
                     b.ToTable("Forms");
                 });
 
-            modelBuilder.Entity("MediPrepareQuestionair.Database.QuestionComponent", b =>
+            modelBuilder.Entity("MediPrepareQuestionair.Database.Question", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -195,6 +195,9 @@ namespace MediPrepareQuestionair.Migrations
 
                     b.Property<Guid?>("FormId")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsRepeatable")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("SectionName")
                         .IsRequired()
@@ -281,7 +284,7 @@ namespace MediPrepareQuestionair.Migrations
                         .WithMany()
                         .HasForeignKey("AnswerSectionId1");
 
-                    b.HasOne("MediPrepareQuestionair.Database.QuestionComponent", "ReferenceQuestion")
+                    b.HasOne("MediPrepareQuestionair.Database.Question", "ReferenceQuestion")
                         .WithMany()
                         .HasForeignKey("ReferenceQuestionId");
 
@@ -332,7 +335,7 @@ namespace MediPrepareQuestionair.Migrations
                     b.Navigation("ReferenceSection");
                 });
 
-            modelBuilder.Entity("MediPrepareQuestionair.Database.QuestionComponent", b =>
+            modelBuilder.Entity("MediPrepareQuestionair.Database.Question", b =>
                 {
                     b.HasOne("MediPrepareQuestionair.Database.Section", null)
                         .WithMany("Questions")

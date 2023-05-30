@@ -1,34 +1,70 @@
 ﻿@using MediPrepareQuestionair.Database
 
+<MudContainer Class="pa-2"  MaxWidth="MaxWidth.Small">
+<MudCard Style="min-height: 200px;">
+    <MudContainer MaxWidth="MaxWidth.Small">
+        @if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Text)
+        {
+            <MudTextField Label="@answerQuestion?.ReferenceQuestion?.DisplayName" @bind-Value="@answerQuestion.Value[0].Value"/>
+        }
+        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.SelectOne)
+        {
+            <MudText Typo="Typo.h5">@answerQuestion.ReferenceQuestion.DisplayName</MudText>
+            <MudRadioGroup T="string" @bind-SelectedOption="@answerQuestion.Value[0].Value" >
+                @foreach (var option in answerQuestion?.ReferenceQuestion?.Options)
+                {
+                    <MudRadio T="string" Color="Color.Primary" Option="@option.Option" Label="@option.Option" Value="@option.Option">@option.Option</MudRadio>
+                    <MudDivider />
+                }
+            </MudRadioGroup>
+        }
+        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Date)
+        {
+            <MudSwipeArea OnSwipe="@OnSwipe">
+                <MudDatePicker Orientation="Orientation.Landscape" OpenTo="OpenTo.Month" Rounded="true" Elevation="6" PickerVariant="PickerVariant.Static" Label="@answerQuestion.ReferenceQuestion.DisplayName" @bind-Date="@(Date)"/>
+            </MudSwipeArea>
+        }
 
-@if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Text)
-{
-    <MediText QuestionText="@answerQuestion?.ReferenceQuestion?.DisplayName" @bind-Value="@answerQuestion.Value[0].Value"/>
-}
-else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.SelectOne)
-{
-    <MediSelectOne @bind-Value="@answerQuestion.Value[0].Value" SelectableValues="answerQuestion?.ReferenceQuestion?.Options.Select(x=>x.Option).ToList()" Label="@answerQuestion?.ReferenceQuestion?.DisplayName" />
-}
+        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Numeric)
+        {
+            <MudTextField Label="@answerQuestion?.ReferenceQuestion?.DisplayName" @bind-Value="@Number"/>
+        }
+        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.MultipleChoice)
+        {
+            <MudText Typo="Typo.h5">@answerQuestion.ReferenceQuestion.DisplayName</MudText>
+            foreach(var option in answerQuestion.Value)
+            {
+                <MudCheckBox T="bool" Checked="@(option.Value == "True")" CheckedChanged="(e) => Callback(option, e)"/>
+            }
+        }
+    </MudContainer>
+</MudCard>
+</MudContainer>
 
 
 @code {
     [Parameter]
     public AnswerQuestion answerQuestion { get; set; }
+    public DateTime? Date
+    {
+        get => DateTime.TryParse(answerQuestion?.Value[0]?.Value, out var time) ?  time :  DateTime.Now;
+        set => answerQuestion.Value[0].Value = value.HasValue ? value.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyt-MM-dd");
+    }
+
+    public int? Number
+    {
+        get => Int32.TryParse(answerQuestion?.Value[0]?.Value, out var num) ? num : null;
+        set => answerQuestion.Value[0].Value = value.HasValue ? value.Value.ToString() : "0";
+    }
+
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
         //Move this to the class
         answerQuestion.Value = new();
-        if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Text)
-        {
-            answerQuestion.Value.Add(new QuestionAnswerValue()
-            {
-                Value = "",
-                Key = answerQuestion.ReferenceQuestion.DisplayName
-            });
-        }
-        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.SelectOne)
+        
+        if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.SelectOne)
         {
             answerQuestion.Value.Add(new QuestionAnswerValue()
             {
@@ -36,8 +72,51 @@ else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.SelectOne)
                 Key = answerQuestion?.ReferenceQuestion?.DisplayName
             });
         }
+        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.MultipleChoice)
+        {
+            answerQuestion.Value = answerQuestion?.ReferenceQuestion?.Options?.Select(x => new QuestionAnswerValue()
+            {
+                Value = "",
+                Key = x.Option,
+            }).ToList()!;
+        }
+        else
+        {
+            answerQuestion.Value.Add(new QuestionAnswerValue()
+            {
+                Value = "",
+                Key = answerQuestion?.ReferenceQuestion?.DisplayName
+            });
+        }
         
     }
-    
+    public void OnSwipe(SwipeDirection direction)
+    {
+        if (direction == SwipeDirection.LeftToRight)
+        {
+            Date = Date.Value.AddMonths(-1);
+            StateHasChanged();
+        }
+        else if (direction == SwipeDirection.RightToLeft)
+        {
+            Date = Date.Value.AddMonths(1);
+            StateHasChanged();
+        }
+    }
+    public void HandleCheckedChanged(ChangeEventArgs e)
+    {
+        e.Value = @"true";
+    }
+
+
+    private void Callback(QuestionAnswerValue? obj, bool? value)
+    {
+        Console.WriteLine(obj.Key);
+        Console.WriteLine(obj.Value);
+        Console.WriteLine((!value).ToString());
+        Console.WriteLine(value);
+        obj.Value = (!value).ToString() ?? string.Empty;
+        StateHasChanged();
+    }
 
 }

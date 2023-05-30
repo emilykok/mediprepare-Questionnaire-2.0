@@ -9,7 +9,7 @@
 
 <p>@value</p>
 <MudPaper>
-    <MudText Typo="Typo.h1">Text</MudText>
+    <MudText Typo="Typo.h1">Top Text</MudText>
     <MudText Typo="Typo.h2">Text</MudText>
     <MudText Typo="Typo.h3">Text</MudText>
     <MudText Typo="Typo.h4">Text</MudText>
@@ -17,9 +17,9 @@
     <MudText Typo="Typo.h6">Text</MudText>
     <MudText Typo="Typo.subtitle1">Text</MudText>
     <MudText Typo="Typo.subtitle2">Text</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Primary">Text</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Secondary">Text</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Tertiary">Text</MudText>
+    <MudText Typo="Typo.body1" Color="Color.Primary">Bottom Text Primary</MudText>
+    <MudText Typo="Typo.body1" Color="Color.Secondary">Text Secondary</MudText>
+    <MudText Typo="Typo.body1" Color="Color.Tertiary">Text Tertiary</MudText>
     
     <MudButton Color="Color.Primary">Primary</MudButton>
     <MudButton Color="Color.Secondary">Secondary</MudButton>
@@ -32,11 +32,11 @@
     <MudButton Color="Color.Default">Default</MudButton>
 </MudPaper>
 
-
-<MediText @bind-Value="value" QuestionText="How?"/>
-
 <QuestionComponent answerQuestion="answerQuestion" />
 <QuestionComponent answerQuestion="SelectOneAnswerQuestion" />
+<QuestionComponent answerQuestion="DateQuestion" />
+<QuestionComponent answerQuestion="NumberQuestion" />
+
 
 <button @onclick="Callback">Knop</button>
 
@@ -67,6 +67,22 @@
             }
         }
     };
+    public AnswerQuestion DateQuestion { get; set; } = new AnswerQuestion()
+    {
+        ReferenceQuestion = new Question()
+        {
+            DisplayName = "When?",
+            Type = QuestionType.Date,
+        }
+    };
+    public AnswerQuestion NumberQuestion { get; set; } = new AnswerQuestion()
+    {
+        ReferenceQuestion = new Question()
+        {
+            DisplayName = "How many?",
+            Type = QuestionType.Numeric,
+        }
+    };
     public void OnValueChanged(string value)
     {
         // this.value = value;
@@ -84,6 +100,8 @@
         Console.WriteLine(value);
         Console.WriteLine(answerQuestion?.Value[0]?.Value);
         Console.WriteLine(SelectOneAnswerQuestion?.Value[0]?.Value);
+        Console.WriteLine(DateQuestion?.Value[0]?.Value);
+        Console.WriteLine(NumberQuestion?.Value[0]?.Value);
     }
 
 }

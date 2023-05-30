@@ -1,5 +1,25 @@
-﻿@page "/Form"
-<h3>Form</h3>
+﻿@page "/Form/{Slug}"
+@using MediPrepareQuestionair.Database
+@using MediPrepareQuestionair.Data
+@inject TestDataFormService TestDataFormService
+
+<MudCard>
+    <MudCardHeader>TestData</MudCardHeader>
+    <MudCardContent>
+        <h3>Section</h3>
+        <p>@Slug</p>
+        <p>@guid</p>
+    </MudCardContent>
+
+</MudCard>
+
+@if (guid != default)
+{
+    foreach (var question in answerSection.AnswerQuestions)
+    {
+        <QuestionComponent answerQuestion="question" />
+    }
+}
 
 @code {
     [Parameter]
@@ -7,4 +27,59 @@
     
     [Parameter]
     public string Slug { get; set; }
+    
+    public Guid? guid
+    {
+        get => Guid.TryParse(Slug, out var guud) ? guud : default;
+    }
+    private AnswerSection answerSection;
+    
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (guid != null)
+        {
+            answerSection = new AnswerSection
+            {
+                Id = Guid.NewGuid(),
+                ReferenceSection = TestDataFormService.FormSections.FirstOrDefault(x => x.Id == guid.Value),
+                AnswerQuestions = new List<AnswerQuestion>()
+            };
+            //Hydrate answerSection.AnswerQuestions
+            if (answerSection?.ReferenceSection?.Questions == null) return;
+            foreach (var question in answerSection?.ReferenceSection?.Questions)
+            {
+                answerSection.AnswerQuestions.Add(new AnswerQuestion
+                {
+                    Id = question.Id,
+                    ReferenceQuestion = question,
+                });
+            }
+        }
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (Slug != default && guid != null)
+        {
+            answerSection = new AnswerSection
+            {
+                Id = Guid.NewGuid(),
+                ReferenceSection = TestDataFormService.FormSections.FirstOrDefault(x => x.Id == guid.Value),
+                AnswerQuestions = new List<AnswerQuestion>()
+            };
+            //Hydrate answerSection.AnswerQuestions
+            if (answerSection?.ReferenceSection?.Questions == null) return base.OnParametersSetAsync();
+            foreach (var question in answerSection?.ReferenceSection?.Questions)
+            {
+                answerSection.AnswerQuestions.Add(new AnswerQuestion
+                {
+                    Id = question.Id,
+                    ReferenceQuestion = question,
+                });
+            }
+        }
+        return base.OnParametersSetAsync();
+    }
+
 }

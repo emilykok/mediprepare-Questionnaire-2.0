@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
 <PageTitle>MediPrepareQuestionComponentair</PageTitle>
-<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" Theme="_theme"/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
@@ -36,9 +36,19 @@
     };
     private bool _isDarkMode;
     private bool _isOpen;
+    private MudThemeProvider _mudThemeProvider;
     
     private void ToggleDarkMode()
     {
         _isOpen = !_isOpen;
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
+            StateHasChanged();
+        }
     }
 }

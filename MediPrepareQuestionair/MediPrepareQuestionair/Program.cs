@@ -13,6 +13,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddDbContext<MediPrepareContext>();
 builder.Services.AddScoped<FormServices>();
+builder.Services.AddScoped < TestDataFormService>();
+
 builder.Services.AddMudServices();
 
 var app = builder.Build();
