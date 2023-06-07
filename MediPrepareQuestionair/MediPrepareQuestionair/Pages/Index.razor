@@ -2,10 +2,15 @@
 @using MediPrepareQuestionair.Database
 @using MediPrepareQuestionair.Services
 @using System.Text.Json
+@using BlazorCurrentDevice
 
 <PageTitle>Index</PageTitle>
-
-<h1>Hello, world!</h1>
+<div>
+    <h3>Debug</h3>
+    <p>@Orientation</p>
+    <p>@Type</p>
+    <p>@OS</p>
+</div>
 
 <p>@value</p>
 <MudPaper>
@@ -37,11 +42,8 @@
 <QuestionComponent answerQuestion="DateQuestion" />
 <QuestionComponent answerQuestion="NumberQuestion" />
 
-
-<button @onclick="Callback">Knop</button>
-
 @code{
-
+    [Inject] IBlazorCurrentDeviceService BlazorCurrentDeviceService { get; set; }
     protected override void OnInitialized()
     {
         answerQuestion.ReferenceQuestion = question;
@@ -93,15 +95,20 @@
         // }
         // StateHasChanged();
     }
-
-    private void Callback()
+    string Orientation { get; set; }
+    string Type { get; set; }
+    string OS { get; set; }
+    
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        //Get all the answers from the form
-        Console.WriteLine(value);
-        Console.WriteLine(answerQuestion?.Value[0]?.Value);
-        Console.WriteLine(SelectOneAnswerQuestion?.Value[0]?.Value);
-        Console.WriteLine(DateQuestion?.Value[0]?.Value);
-        Console.WriteLine(NumberQuestion?.Value[0]?.Value);
+        if(firstRender)
+        {
+            OS = await BlazorCurrentDeviceService.OS();
+            Orientation = await BlazorCurrentDeviceService.Orientation();
+            Type = await BlazorCurrentDeviceService.Type();
+            StateHasChanged();
+        }
     }
 
 }

@@ -1,50 +1,62 @@
 ﻿@using MediPrepareQuestionair.Database
 
-<MudContainer Class="pa-2"  MaxWidth="MaxWidth.Small">
-<MudCard Style="min-height: 200px;">
-    <MudContainer MaxWidth="MaxWidth.Small">
-        @if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Text)
-        {
-            <MudTextField Label="@answerQuestion?.ReferenceQuestion?.DisplayName" @bind-Value="@answerQuestion.Value[0].Value"/>
-        }
-        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.SelectOne)
-        {
-            <MudText Typo="Typo.h5">@answerQuestion.ReferenceQuestion.DisplayName</MudText>
-            <MudRadioGroup T="string" @bind-SelectedOption="@answerQuestion.Value[0].Value" >
-                @foreach (var option in answerQuestion?.ReferenceQuestion?.Options)
+<MudContainer Class="pa-2" MaxWidth="MaxWidth.Small">
+    @if (answerQuestion == null)
+    {
+        <MudSkeleton SkeletonType="SkeletonType.Text" Animation="Animation.Pulse" />
+    }
+    else
+    {
+        <MudCard Style="min-height: 200px;">
+            <MudContainer MaxWidth="MaxWidth.Small">
+                @if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Text)
                 {
-                    <MudRadio T="string" Color="Color.Primary" Option="@option.Option" Label="@option.Option" Value="@option.Option">@option.Option</MudRadio>
-                    <MudDivider />
+                    <MudTextField OnBlur="TextFieldLostFocus" Label="@answerQuestion?.ReferenceQuestion?.DisplayName" @bind-Value="@answerQuestion.Value[0].Value"/>
                 }
-            </MudRadioGroup>
-        }
-        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Date)
-        {
-            <MudSwipeArea OnSwipe="@OnSwipe">
-                <MudDatePicker Orientation="Orientation.Landscape" OpenTo="OpenTo.Month" Rounded="true" Elevation="6" PickerVariant="PickerVariant.Static" Label="@answerQuestion.ReferenceQuestion.DisplayName" @bind-Date="@(Date)"/>
-            </MudSwipeArea>
-        }
+                else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.SelectOne)
+                {
+                    <MudText Typo="Typo.h5">@answerQuestion.ReferenceQuestion.DisplayName</MudText>
+                    <MudRadioGroup SelectedOption="@answerQuestion.Value[0].Value" T="string" SelectedOptionChanged="RadioButtonChangedEvent">
+                        @foreach (var option in answerQuestion?.ReferenceQuestion?.Options)
+                        {
+                            <MudRadio T="string" Color="Color.Primary" Option="@option.Option" Label="@option.Option" Value="@option.Option">@option.Option</MudRadio>
+                            <MudDivider/>
+                        }
+                    </MudRadioGroup>
+                }
+                else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Date)
+                {
+                    <MudSwipeArea OnSwipe="@OnSwipe">
+                        <MudDatePicker Orientation="Orientation.Landscape" OpenTo="OpenTo.Month" Rounded="true" Elevation="6" PickerVariant="PickerVariant.Static" Label="@answerQuestion.ReferenceQuestion.DisplayName" @bind-Date="@(Date)"/>
+                    </MudSwipeArea>
+                }
 
-        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Numeric)
-        {
-            <MudTextField Label="@answerQuestion?.ReferenceQuestion?.DisplayName" @bind-Value="@Number"/>
-        }
-        else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.MultipleChoice)
-        {
-            <MudText Typo="Typo.h5">@answerQuestion.ReferenceQuestion.DisplayName</MudText>
-            foreach(var option in answerQuestion.Value)
-            {
-                <MudCheckBox T="bool" Checked="@(option.Value == "True")" CheckedChanged="(e) => Callback(option, e)"/>
-            }
-        }
-    </MudContainer>
-</MudCard>
+                else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.Numeric)
+                {
+                    <MudNumericField OnBlur="TextFieldLostFocus" Label="@answerQuestion?.ReferenceQuestion?.DisplayName" @bind-Value="@Number"/>
+                }
+                else if (answerQuestion?.ReferenceQuestion?.Type == QuestionType.MultipleChoice)
+                {
+                    <MudText Typo="Typo.h5">@answerQuestion.ReferenceQuestion.DisplayName</MudText>
+                    foreach (var option in answerQuestion.Value)
+                    {
+                        <MudCheckBox T="bool" Checked="@(option.Value == "True")" CheckedChanged="(e) => CheckBoxChanged(option, e)">@option.Key</MudCheckBox>
+                    }
+                }
+            </MudContainer>
+        </MudCard>
+    }
 </MudContainer>
 
 
 @code {
     [Parameter]
     public AnswerQuestion answerQuestion { get; set; }
+    [Parameter]
+    public IList<QuestionEventInput> QuestionEvents { get; set; }
+    [Parameter]
+    public EventCallback<QuestionEventInput> QuestionEventCallback { get; set; }
+
     public DateTime? Date
     {
         get => DateTime.TryParse(answerQuestion?.Value[0]?.Value, out var time) ?  time :  DateTime.Now;
@@ -102,6 +114,15 @@
             Date = Date.Value.AddMonths(1);
             StateHasChanged();
         }
+        QuestionEventCallback.InvokeAsync(new QuestionEventInput()
+        {
+            QuestionId = answerQuestion.ReferenceQuestion.Id,
+            Id = Guid.NewGuid(),
+            EventName = $"DateChangedSwipe",
+            TimeStamp = DateTime.UtcNow,
+            Value = SwipeDirection.LeftToRight == direction ? "Right" : "Left",
+            SessionId = answerQuestion.AnswerSection.AnswerForm.SessionId
+        });
     }
     public void HandleCheckedChanged(ChangeEventArgs e)
     {
@@ -109,14 +130,51 @@
     }
 
 
-    private void Callback(QuestionAnswerValue? obj, bool? value)
+    private void CheckBoxChanged(QuestionAnswerValue? obj, bool? value)
     {
-        Console.WriteLine(obj.Key);
-        Console.WriteLine(obj.Value);
-        Console.WriteLine((!value).ToString());
-        Console.WriteLine(value);
-        obj.Value = (!value).ToString() ?? string.Empty;
+        var Qevent = new QuestionEventInput()
+        {
+            QuestionId = answerQuestion.ReferenceQuestion.Id,
+            Id = Guid.NewGuid(),
+            EventName = $"CheckboxChanged",
+            TimeStamp = DateTime.UtcNow,
+            Value = obj.Key,
+            SessionId = answerQuestion.AnswerSection.AnswerForm.SessionId
+        };
+        QuestionEvents.Add(Qevent);
+        QuestionEventCallback.InvokeAsync(Qevent);
+        obj.Value = (value).ToString() ?? string.Empty;
         StateHasChanged();
+    }
+
+    private void RadioButtonChangedEvent(string value)
+    {
+        answerQuestion.Value[0].Value = value;
+        var QEvent = new QuestionEventInput()
+        {
+            QuestionId = answerQuestion.ReferenceQuestion.Id,
+            Id = Guid.NewGuid(),
+            EventName = $"RadioButtonChanged",
+            TimeStamp = DateTime.UtcNow,
+            Value = value,
+            SessionId = answerQuestion.AnswerSection.AnswerForm.SessionId
+        };
+        QuestionEvents.Add(QEvent);
+        QuestionEventCallback.InvokeAsync(QEvent);
+    }
+
+    private void TextFieldLostFocus()
+    {
+        var QEvent = new QuestionEventInput()
+        {
+            QuestionId = answerQuestion.ReferenceQuestion.Id,
+            Id = Guid.NewGuid(),
+            EventName = $"TextFieldLostFocus",
+            TimeStamp = DateTime.UtcNow,
+            SessionId = answerQuestion.AnswerSection.AnswerForm.SessionId
+        };
+        QuestionEvents.Add(QEvent);
+        QuestionEventCallback.InvokeAsync(QEvent);
     }
 
 }

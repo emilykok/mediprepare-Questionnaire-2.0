@@ -1,85 +1,160 @@
-﻿@page "/Form/{Slug}"
+﻿@page "/Form/{FormSlug}/{Slug}"
+@*What Does this mean? Formslug is the ID of the form, Slug is the Section ID*@
 @using MediPrepareQuestionair.Database
 @using MediPrepareQuestionair.Data
+@using System.Diagnostics
+@using System.Text.Json
+@using InfluxDB.Client.Api.Domain
+@using InfluxDB.Client.Writes
+@using MediPrepareQuestionair.Extensions
+@using MediPrepareQuestionair.Models
+@using MediPrepareQuestionair.Services
+@inject ISessionIdGenerator SessionIdGenerator
+@inject InfluxDbService InfluxDbService
 @inject TestDataFormService TestDataFormService
+@inject IBlazorCurrentDeviceService BlazorCurrentDeviceService
+@inject NavigationManager NavigationManager
+@inject AnswerCollectionService AnswerCollectionService
 
+@if (AnswerSection != null && answerForm != null)
+{
 <MudCard>
     <MudCardHeader>TestData</MudCardHeader>
     <MudCardContent>
+        <h3>Form</h3>
+        <p>@FormGuid</p>
         <h3>Section</h3>
-        <p>@Slug</p>
-        <p>@guid</p>
+        <p>@Guid</p>
+        <h3>AnswerForm</h3>
+        <p>@answerForm.Id</p>
+        <p>@answerForm.TimeStamp.ToString("yy-MM-dd")</p>
+        <p>@DebugText</p>
     </MudCardContent>
-
 </MudCard>
 
-@if (guid != default)
-{
-    foreach (var question in answerSection.AnswerQuestions)
+
+    <h4>@AnswerSection.ReferenceSection.DisplayName</h4>
+    foreach (var question in AnswerSection.AnswerQuestions)
     {
-        <QuestionComponent answerQuestion="question" />
+        <QuestionComponent QuestionEventCallback="MeasureMentCallback" QuestionEvents="answerForm.QuestionEventInputs" answerQuestion="question" />
     }
+    <MudButton OnClick="OnNextPress" Variant="Variant.Filled" Color="Color.Primary">Next</MudButton>
+    
 }
 
 @code {
     [Parameter]
     public int Id { get; set; }
-    
     [Parameter]
-    public string Slug { get; set; }
+    public string? Slug { get; set; }
+    [Parameter]
+    public string? FormSlug { get; set; }
     
-    public Guid? guid
-    {
-        get => Guid.TryParse(Slug, out var guud) ? guud : default;
-    }
-    private AnswerSection answerSection;
+    public Guid? Guid => System.Guid.TryParse(Slug, out var guud) ? guud : default;
+    public Guid? FormGuid => System.Guid.TryParse(FormSlug, out var guud) ? guud : default;
     
+    public string DebugText { get; set; }
+
+    private AnswerForm answerForm { get; set; }
+    private AnswerSection AnswerSection { get; set; }
+    private Stopwatch timer;
     protected override void OnInitialized()
     {
+        Console.WriteLine($"OnInitialized");
         base.OnInitialized();
-        if (guid != null)
-        {
-            answerSection = new AnswerSection
-            {
-                Id = Guid.NewGuid(),
-                ReferenceSection = TestDataFormService.FormSections.FirstOrDefault(x => x.Id == guid.Value),
-                AnswerQuestions = new List<AnswerQuestion>()
-            };
-            //Hydrate answerSection.AnswerQuestions
-            if (answerSection?.ReferenceSection?.Questions == null) return;
-            foreach (var question in answerSection?.ReferenceSection?.Questions)
-            {
-                answerSection.AnswerQuestions.Add(new AnswerQuestion
-                {
-                    Id = question.Id,
-                    ReferenceQuestion = question,
-                });
-            }
-        }
     }
 
     protected override Task OnParametersSetAsync()
     {
-        if (Slug != default && guid != null)
-        {
-            answerSection = new AnswerSection
-            {
-                Id = Guid.NewGuid(),
-                ReferenceSection = TestDataFormService.FormSections.FirstOrDefault(x => x.Id == guid.Value),
-                AnswerQuestions = new List<AnswerQuestion>()
-            };
-            //Hydrate answerSection.AnswerQuestions
-            if (answerSection?.ReferenceSection?.Questions == null) return base.OnParametersSetAsync();
-            foreach (var question in answerSection?.ReferenceSection?.Questions)
-            {
-                answerSection.AnswerQuestions.Add(new AnswerQuestion
-                {
-                    Id = question.Id,
-                    ReferenceQuestion = question,
-                });
-            }
-        }
+        Console.WriteLine($"OnParametersSetAsync");
+        if (Slug == default || Guid == null) return base.OnParametersSetAsync();
+        timer = Stopwatch.StartNew();
+        if(answerForm?.ReferenceForm?.Sections == null) return base.OnParametersSetAsync();
         return base.OnParametersSetAsync();
     }
+    string Orientation { get; set; }
+    string Type { get; set; }
+    string OS { get; set; }
+    bool NextDisabled { get; set; } = false;
+    
+    public string SessionId { get; set; }
+    
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            Console.WriteLine($"OnAfterRenderAsync");
+            OS = await BlazorCurrentDeviceService.OS();
+            Orientation = await BlazorCurrentDeviceService.Orientation();
+            Type = await BlazorCurrentDeviceService.Type();
+            SessionId = await SessionIdGenerator.GetAndOrGenerateSessionId();
+            OninitForm();
+            answerForm.SessionId = SessionId;
+            answerForm.OperatingSystem = OS;
+            answerForm.DeviceType = Type;
+            answerForm.ScreenOrientation = Orientation;
+           
+        }
+        var index = answerForm.ReferenceForm.Sections.IndexOf(AnswerSection.ReferenceSection); 
+        NextDisabled = index + 1 >= answerForm.ReferenceForm.Sections.Count;
+        //Serialze options
+        JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            MaxDepth = 20,
+        };
+        DebugText = answerForm.ToDebugText();
+        StateHasChanged();
+    }
 
+
+    private void MeasureMentCallback(QuestionEventInput ms)
+    {
+        InfluxDbService.WritePoint(
+            PointData.Measurement(ms.EventName)
+                .Now()
+                .Tag("questionid", ms.QuestionId.ToString())
+                .Field("value", ms.Value)
+                .Field("session", ms.SessionId)
+                
+        );
+        InfluxDbService.WriteMeasurement(ms);
+    }
+
+    private void OninitForm()
+    {
+        if(SessionId == null || SessionId == default ) return; //wait for OnAfterRenderAsync
+        var form = TestDataFormService.Forms.FirstOrDefault(x => x.Id == FormGuid);
+        if (form == default) return; //wait for OnParametersSetAsync
+        answerForm = AnswerCollectionService.PrepareNewAnswerform(SessionId, form);
+        answerForm.SessionId = SessionId;
+        AnswerSection = answerForm.AnswerSections.FirstOrDefault(x => x.ReferenceSection.Id == Guid);
+        //Check if this section is the last section
+        var index = answerForm.ReferenceForm.Sections.IndexOf(AnswerSection.ReferenceSection); 
+        NextDisabled = index + 1 >= answerForm.ReferenceForm.Sections.Count;
+        StateHasChanged();
+    }
+    private void OnNextPress()
+    {
+        AnswerSection.TimeTaken = timer.Elapsed;
+        Console.WriteLine(AnswerSection.TimeTaken.ToString("mm\\:ss\\.ff"));
+        //Go to next section
+        //Index of current section
+        var index = answerForm.ReferenceForm.Sections.IndexOf(AnswerSection.ReferenceSection); 
+        Console.WriteLine($"Index: {index}");
+        Console.WriteLine($"Count: {answerForm.ReferenceForm.Sections.Count}");
+        AnswerCollectionService.LogForms();
+        //If there is a next section
+        if (index + 1 < answerForm.ReferenceForm.Sections.Count)
+        {
+            //Go to next section
+            NavigationManager.NavigateTo($"/form/{FormGuid}/{answerForm.ReferenceForm.Sections[index + 1].Id}");
+        }
+        else
+        {
+            //Go to next form
+            NavigationManager.NavigateTo($"/");
+        }
+    }
 }

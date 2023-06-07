@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using InfluxDB.Client.Core;
 using MediPrepareQuestionair.Data;
 using MediPrepareQuestionair.Models;
 using Microsoft.EntityFrameworkCore;
@@ -47,30 +48,17 @@ public class MediPrepareContext : DbContext
         modelBuilder.Entity<AnswerForm>()
             .HasOne<Patient>(x => x.ReferencePatient)
             .WithMany(x=>x.Forms);
-        modelBuilder.Entity<AnswerForm>().HasMany<AnswerSection>();
+        modelBuilder.Entity<AnswerForm>().HasMany<AnswerSection>().WithOne(x=>x.AnswerForm);
         
-        modelBuilder.Entity<AnswerSection>().HasMany<AnswerQuestion>();
+        
+        modelBuilder.Entity<AnswerSection>().HasMany<AnswerQuestion>().WithOne(x=>x.AnswerSection);
         modelBuilder.Entity<AnswerSection>().HasKey(x => x.Id);
         modelBuilder.Entity<AnswerSection>().HasOne<Section>(x => x.ReferenceSection);
-        
         modelBuilder.Entity<AnswerQuestion>().HasKey(x => x.Id);
         modelBuilder.Entity<AnswerQuestion>().HasOne<Question>(x => x.ReferenceQuestion);
         modelBuilder.Entity<AnswerQuestion>().OwnsMany(x => x.Value);
-        
-        
-        
-        
-        
-        
-        
         modelBuilder.Entity<QuestionEventInput>().HasKey(x => x.Id);
         modelBuilder.Entity<Patient>().HasKey(x => x.Id);
-        
-        
-        
-        
-        
-        
         base.OnModelCreating(modelBuilder);
     }
     
@@ -132,7 +120,7 @@ public class Section
 /// </summary>
 public class Question
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Version { get; set; }
     public string DisplayName { get; set; }
     public QuestionType Type { get; set; }
@@ -159,25 +147,24 @@ public enum QuestionType
     SelectOne = 4,
     Map_Body = 5,
     ButtonGroup = 6,
-} 
+}
+[Measurement("event_input")]
 public class QuestionEventInput
 {
+    [InfluxDB.Client.Core.Column("id")]
     public Guid Id { get; set; }
+    [InfluxDB.Client.Core.Column("event", IsTag = true)]
     public string EventName { get; set; }
+    [InfluxDB.Client.Core.Column(IsTimestamp = true)]
     public DateTime TimeStamp { get; set; }
+    [InfluxDB.Client.Core.Column("session")]
     public string SessionId { get; set; }
+    [InfluxDB.Client.Core.Column("question")]
     public Guid QuestionId { get; set; }
+    [InfluxDB.Client.Core.Column("version")]
     public string QuestionVersion { get; set; }
-
-    public void Deconstruct(out Guid Id, out string EventName, out DateTime TimeStamp, out string SessionId, out Guid QuestionId, out string QuestionVersion)
-    {
-        Id = this.Id;
-        EventName = this.EventName;
-        TimeStamp = this.TimeStamp;
-        SessionId = this.SessionId;
-        QuestionId = this.QuestionId;
-        QuestionVersion = this.QuestionVersion;
-    }
+    [InfluxDB.Client.Core.Column("value")]
+    public string Value { get; set; }
 }
 /// <summary>
 /// For used for answering Questions
@@ -206,6 +193,9 @@ public class AnswerForm
     /// Sections of the Form
     /// </summary>
     public List<AnswerSection>? AnswerSections { get; set; } = new List<AnswerSection>();
+    public string OperatingSystem { get; set; }
+    public string DeviceType { get; set; }
+    public string ScreenOrientation { get; set; }
 }
 
 public class AnswerSection
@@ -213,6 +203,17 @@ public class AnswerSection
     public Guid Id { get; set; }
     public Section? ReferenceSection { get; set; }
     public List<AnswerQuestion>? AnswerQuestions { get; set; } = new List<AnswerQuestion>();
+    
+    //Navigation Properties to the Parent
+    /// <summary>
+    /// Parent
+    /// </summary>
+    public AnswerForm? AnswerForm { get; set; }
+    
+    /// <summary>
+    /// Amount of Time taken to answer the Section
+    /// </summary>
+    public TimeSpan TimeTaken { get; set; }
 }
 /// <summary>
 /// QuestionComponent Answered by the User
@@ -226,6 +227,11 @@ public class AnswerQuestion
     /// Can have multiple SelectableValues
     /// </summary>
     public List<QuestionAnswerValue> Value { get; set; } = new List<QuestionAnswerValue>();
+    /// <summary>
+    /// Parent
+    /// </summary>
+    
+    public AnswerSection? AnswerSection { get; set; }
 }
 
 public class QuestionAnswerValue

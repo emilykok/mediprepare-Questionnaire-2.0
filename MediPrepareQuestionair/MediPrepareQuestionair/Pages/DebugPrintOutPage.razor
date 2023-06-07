@@ -1,0 +1,39 @@
+﻿@page "/answerform/{slug}"
+@using MediPrepareQuestionair.Database
+@using MediPrepareQuestionair.Data
+@inject TestDataFormService TestDataFormService
+
+@if (answerForm != default)
+{
+    <h3>@answerForm.Id</h3>
+    foreach(var answerSection in answerForm?.AnswerSections!)
+    {
+        <p> @answerSection.ReferenceSection!.SectionName </p>
+        @foreach(var question in answerSection.AnswerQuestions!)
+        {
+            <p>@question.ReferenceQuestion!.DisplayName</p>
+            @foreach(var answer in question.Value)
+            {
+                <p>@answer.Key</p>
+                <p>@answer.Value</p>
+            }
+        }
+    }
+}
+
+@code {
+    [Parameter]    
+    public string slug { get; set; }
+    
+    public Guid? guid => Guid.TryParse(slug, out var guud) ? guud : default;
+    
+    private AnswerForm answerForm;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        answerForm = TestDataFormService.AnswerForms.FirstOrDefault(x => x.Id == guid);
+        
+    }
+    
+    
+}
