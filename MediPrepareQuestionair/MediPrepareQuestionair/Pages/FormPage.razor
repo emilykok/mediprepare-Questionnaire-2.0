@@ -15,6 +15,7 @@
 @inject IBlazorCurrentDeviceService BlazorCurrentDeviceService
 @inject NavigationManager NavigationManager
 @inject AnswerCollectionService AnswerCollectionService
+@using Color = MudBlazor.Color
 
 @if (AnswerSection != null && answerForm != null)
 {
@@ -90,12 +91,14 @@
             Type = await BlazorCurrentDeviceService.Type();
             SessionId = await SessionIdGenerator.GetAndOrGenerateSessionId();
             OninitForm();
+            if (answerForm == null) return;
             answerForm.SessionId = SessionId;
             answerForm.OperatingSystem = OS;
             answerForm.DeviceType = Type;
             answerForm.ScreenOrientation = Orientation;
            
         }
+        if (answerForm == null) return;
         var index = answerForm.ReferenceForm.Sections.IndexOf(AnswerSection.ReferenceSection); 
         NextDisabled = index + 1 >= answerForm.ReferenceForm.Sections.Count;
         //Serialze options

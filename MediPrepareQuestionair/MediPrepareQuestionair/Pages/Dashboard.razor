@@ -1,0 +1,26 @@
+@page "/dashboard"
+@using MediPrepareQuestionair.Services
+@inject AnswerCollectionService AnswerCollectionService
+@using MediPrepareQuestionair.Models
+@using MediPrepareQuestionair.Database
+<p>Dashboard</p>
+<DemoContainer>
+    <MudCard Width="500px">
+    <ApexChart TItem="AnswerForm"
+               Title="Operating System">
+
+        <ApexPointSeries TItem="AnswerForm"
+                         Items="@AnswerCollectionService.AnswerFormsList"
+                         Name="Operating System"
+                         SeriesType="SeriesType.Pie"
+                         XValue="@(e => e.OperatingSystem)"
+                         YAggregate="@(e => e.Select(x => x.OperatingSystem).Count())"
+                         OrderByDescending="e=>e.Y" 
+                         />
+    </ApexChart>
+    </MudCard>
+</DemoContainer>
+
+@code{
+
+}

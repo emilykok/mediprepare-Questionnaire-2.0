@@ -33,7 +33,7 @@ public class InfluxDbService
 
     public void WriteMeasurement<TM>(TM measurement, string bucket = "EventDataInput", string org = "organization")
     {
-        using var client = new InfluxDBClient("http://localhost:8086", "yahKM6dgt8yqvFnUjzT3Pb4RuTgThbTonFr3HW9RBNItpO3z3RFn_Bvwc368h6Qja-ooM6Z-BCJBSyrevek0EA==");
+        using var client = new InfluxDBClient("http://localhost:8086", "wqCcT6BglzSq1k6tT0JqZqW7YyQytgfDAZQuLmGFNMrFKKNDY0dpTcMVsCB80wAegzz5EbkHSSuSaMgaRJmOZA==");
         using var write = client.GetWriteApi();
         write.WriteMeasurement(measurement, WritePrecision.Ms, bucket, org);
         _logger.LogInformation("Writing to InfluxDB");

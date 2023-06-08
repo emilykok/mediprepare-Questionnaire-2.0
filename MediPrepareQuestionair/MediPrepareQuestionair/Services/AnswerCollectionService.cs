@@ -10,6 +10,7 @@ public class AnswerCollectionService
     /// SessionId of the current user with the answers
     /// </summary>
     public Dictionary<string, AnswerForm> AnswerForms { get; set; } = new Dictionary<string, AnswerForm>();
+    public List<AnswerForm> AnswerFormsList => AnswerForms.Values.ToList();
     
     private readonly TestDataFormService _testDataFormService;
     private ILogger<AnswerCollectionService> _logger;
