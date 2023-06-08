@@ -36,7 +36,7 @@ public static class AnswerFormExtensions
             sb.AppendLine("\n");
 
         }
-        
+
         return sb.ToString();
     }
 }

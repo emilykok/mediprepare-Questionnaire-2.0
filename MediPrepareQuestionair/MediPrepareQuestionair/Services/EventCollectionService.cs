@@ -9,9 +9,9 @@ public class EventCollectionService
 
     public List<string> GetEventById(string id)
     {
-       return EventCollection
-           .Where(x=>x.Key == id)
-           .Select(x=>x.Value)
-           .ToList();
+        return EventCollection
+            .Where(x => x.Key == id)
+            .Select(x => x.Value)
+            .ToList();
     }
 }

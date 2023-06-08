@@ -10,7 +10,7 @@ public interface ISessionIdGenerator
 public class SessionIdGenerator : ISessionIdGenerator
 {
     private readonly Blazored.LocalStorage.ILocalStorageService _localStorageService;
-    
+
     public SessionIdGenerator(Blazored.LocalStorage.ILocalStorageService localStorageService)
     {
         _localStorageService = localStorageService;
@@ -18,7 +18,7 @@ public class SessionIdGenerator : ISessionIdGenerator
 
     public async Task<string> GetAndOrGenerateSessionId()
     {
-        if(await _localStorageService.ContainKeyAsync("SessionId"))
+        if (await _localStorageService.ContainKeyAsync("SessionId"))
         {
             return await GetSessionId();
         }
@@ -30,7 +30,7 @@ public class SessionIdGenerator : ISessionIdGenerator
         await _localStorageService.SetItemAsync("SessionId", sessionId);
         return sessionId;
     }
-    
+
     public async Task<string> GetSessionId()
     {
         var sessionId = await _localStorageService.GetItemAsync<string>("SessionId");

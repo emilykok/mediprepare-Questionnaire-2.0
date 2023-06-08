@@ -11,10 +11,10 @@ public class AnswerCollectionService
     /// </summary>
     public Dictionary<string, AnswerForm> AnswerForms { get; set; } = new Dictionary<string, AnswerForm>();
     public List<AnswerForm> AnswerFormsList => AnswerForms.Values.ToList();
-    
+
     private readonly TestDataFormService _testDataFormService;
     private ILogger<AnswerCollectionService> _logger;
-    
+
     public AnswerCollectionService(TestDataFormService testDataFormService, ILogger<AnswerCollectionService> logger)
     {
         _testDataFormService = testDataFormService;
@@ -24,17 +24,17 @@ public class AnswerCollectionService
             AnswerForms.Add("test", form);
         }
     }
-    
+
     public AnswerForm PrepareNewAnswerform(string SessionId, Form form)
     {
-        if(AnswerForms.TryGetValue(SessionId, out var newAnswerform)) return newAnswerform;
+        if (AnswerForms.TryGetValue(SessionId, out var newAnswerform)) return newAnswerform;
         var answerform = new AnswerForm()
         {
             ReferenceForm = form,
             SessionId = SessionId,
             QuestionEventInputs = new List<QuestionEventInput>(),
             TimeStamp = DateTime.Now,
-            ReferencePatient = new ()
+            ReferencePatient = new()
         };
         var answerSections = new List<AnswerSection>();
         foreach (var section in form.Sections)
@@ -45,11 +45,12 @@ public class AnswerCollectionService
                 AnswerQuestions = new List<AnswerQuestion>(),
                 AnswerForm = answerform
             };
-            foreach (var answerQuestion in section.Questions.Select(question => new AnswerQuestion() {
-                 ReferenceQuestion = question,
-                 AnswerSection = answerSection,
-                 Value = new List<QuestionAnswerValue>()
-             }))
+            foreach (var answerQuestion in section.Questions.Select(question => new AnswerQuestion()
+            {
+                ReferenceQuestion = question,
+                AnswerSection = answerSection,
+                Value = new List<QuestionAnswerValue>()
+            }))
             {
                 answerSection.AnswerQuestions.Add(answerQuestion);
             }

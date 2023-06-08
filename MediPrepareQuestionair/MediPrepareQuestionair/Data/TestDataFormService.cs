@@ -28,11 +28,11 @@ public class TestDataFormService
                     DisplayName = "How many?",
                     Type = QuestionType.Numeric,
                 }
-                
+
             },
             Id = Guid.Parse("cda615a4-4333-4e4f-a6d6-691cc58f70c1"),
         });
-        
+
         FormSections.Add(new Section()
         {
             SectionName = "TestSection2",
@@ -81,7 +81,7 @@ public class TestDataFormService
             FormName = "RealForm",
             Version = "1.0",
             Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-            Sections = new ()
+            Sections = new()
         });
         foreach (var section in FormSections)
         {

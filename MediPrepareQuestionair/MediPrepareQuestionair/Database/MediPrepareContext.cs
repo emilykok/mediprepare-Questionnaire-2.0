@@ -34,11 +34,11 @@ public class MediPrepareContext : DbContext
     {
         modelBuilder.Entity<Form>().HasMany<Section>(x => x.Sections);
         modelBuilder.Entity<Form>().HasKey(x => x.Id);
-        
+
         modelBuilder.Entity<Section>().HasMany<Question>(x => x.Questions);
         modelBuilder.Entity<Section>().HasKey(x => x.Id);
         modelBuilder.Entity<Section>().HasOne<Section>(x => x.DependsOnSection); //Can be null if no dependency
-        
+
         modelBuilder.Entity<Question>().HasKey(x => x.Id);
         modelBuilder.Entity<Question>().OwnsMany<QuestionOptions>(x => x.Options);
 
@@ -47,11 +47,11 @@ public class MediPrepareContext : DbContext
         modelBuilder.Entity<AnswerForm>().HasOne<Form>(x => x.ReferenceForm);
         modelBuilder.Entity<AnswerForm>()
             .HasOne<Patient>(x => x.ReferencePatient)
-            .WithMany(x=>x.Forms);
-        modelBuilder.Entity<AnswerForm>().HasMany<AnswerSection>().WithOne(x=>x.AnswerForm);
-        
-        
-        modelBuilder.Entity<AnswerSection>().HasMany<AnswerQuestion>().WithOne(x=>x.AnswerSection);
+            .WithMany(x => x.Forms);
+        modelBuilder.Entity<AnswerForm>().HasMany<AnswerSection>().WithOne(x => x.AnswerForm);
+
+
+        modelBuilder.Entity<AnswerSection>().HasMany<AnswerQuestion>().WithOne(x => x.AnswerSection);
         modelBuilder.Entity<AnswerSection>().HasKey(x => x.Id);
         modelBuilder.Entity<AnswerSection>().HasOne<Section>(x => x.ReferenceSection);
         modelBuilder.Entity<AnswerQuestion>().HasKey(x => x.Id);
@@ -61,13 +61,13 @@ public class MediPrepareContext : DbContext
         modelBuilder.Entity<Patient>().HasKey(x => x.Id);
         base.OnModelCreating(modelBuilder);
     }
-    
+
     public DbSet<Patient> Patients { get; set; } = null!;
     public DbSet<QuestionEventInput> QuestionEventInputs { get; set; } = null!;
     public DbSet<Form> Forms { get; set; } = null!;
     public DbSet<Section> Sections { get; set; } = null!;
     public DbSet<Question> Questions { get; set; } = null!;
-    
+
     public DbSet<AnswerForm> AnswerForms { get; set; } = null!;
     public DbSet<AnswerSection> AnswerSections { get; set; } = null!;
     public DbSet<AnswerQuestion> AnswerQuestions { get; set; } = null!;
@@ -100,7 +100,7 @@ public class Section
     public Guid Id { get; set; }
     public string Version { get; set; }
     public string SectionName { get; set; }
-    public string DisplayName { get; set; } 
+    public string DisplayName { get; set; }
     public List<Question> Questions { get; set; } = new List<Question>();
     public Section? DependsOnSection { get; set; }
     public bool IsRepeatable { get; set; }
@@ -176,7 +176,7 @@ public class AnswerForm
     /// <summary>
     /// Patient bound to the Form
     /// </summary>
-    public Patient? ReferencePatient { get; set; } 
+    public Patient? ReferencePatient { get; set; }
     /// <summary>
     /// Start Time of the Form
     /// </summary>
@@ -203,13 +203,13 @@ public class AnswerSection
     public Guid Id { get; set; }
     public Section? ReferenceSection { get; set; }
     public List<AnswerQuestion>? AnswerQuestions { get; set; } = new List<AnswerQuestion>();
-    
+
     //Navigation Properties to the Parent
     /// <summary>
     /// Parent
     /// </summary>
     public AnswerForm? AnswerForm { get; set; }
-    
+
     /// <summary>
     /// Amount of Time taken to answer the Section
     /// </summary>
@@ -230,7 +230,7 @@ public class AnswerQuestion
     /// <summary>
     /// Parent
     /// </summary>
-    
+
     public AnswerSection? AnswerSection { get; set; }
 }
 
