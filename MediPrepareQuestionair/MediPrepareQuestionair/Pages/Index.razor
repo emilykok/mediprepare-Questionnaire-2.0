@@ -12,8 +12,6 @@
     <p>@Type</p>
     <p>@OS</p>
 </div>
-
-<p>@value</p>
 <MudPaper>
     <MudText Typo="Typo.h1">Top Text</MudText>
     <MudText Typo="Typo.h2">Text</MudText>
@@ -38,63 +36,12 @@
     <MudButton Color="Color.Default">Default</MudButton>
 </MudPaper>
 
-<QuestionComponent answerQuestion="answerQuestion" />
-<QuestionComponent answerQuestion="SelectOneAnswerQuestion" />
-<QuestionComponent answerQuestion="DateQuestion" />
-<QuestionComponent answerQuestion="NumberQuestion" />
 
 @code{
     [Inject] IBlazorCurrentDeviceService BlazorCurrentDeviceService { get; set; }
     protected override void OnInitialized()
     {
-        answerQuestion.ReferenceQuestion = question;
         base.OnInitialized();
-    }
-    public bool disabled { get; set; } = false;
-    public string value { get; set; } = "";
-    public string value2 { get; set; } = "";
-    public List<string> values { get; set; } = new List<string>() { "1", "2", "3" };
-    public Question question { get; set; } = new Question() { DisplayName = "How are you?" };
-    public AnswerQuestion answerQuestion { get; set; } = new();
-    public AnswerQuestion SelectOneAnswerQuestion { get; set; } = new AnswerQuestion()
-    {
-        ReferenceQuestion = new Question()
-        {
-            DisplayName = "How are you?",
-            Type = QuestionType.SelectOne,
-            Options = new List<QuestionOptions>()
-            {
-                new QuestionOptions() {Option = "1"},
-                new QuestionOptions() {Option = "2"},
-                new QuestionOptions() {Option = "3"}
-            }
-        }
-    };
-    public AnswerQuestion DateQuestion { get; set; } = new AnswerQuestion()
-    {
-        ReferenceQuestion = new Question()
-        {
-            DisplayName = "When?",
-            Type = QuestionType.Date,
-        }
-    };
-    public AnswerQuestion NumberQuestion { get; set; } = new AnswerQuestion()
-    {
-        ReferenceQuestion = new Question()
-        {
-            DisplayName = "How many?",
-            Type = QuestionType.Numeric,
-        }
-    };
-    public void OnValueChanged(string value)
-    {
-        // this.value = value;
-        // if (value == "3")
-        // {
-        //     disabled = true;
-        //     
-        // }
-        // StateHasChanged();
     }
     string Orientation { get; set; }
     string Type { get; set; }

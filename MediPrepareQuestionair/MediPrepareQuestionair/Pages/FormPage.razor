@@ -1,4 +1,5 @@
-﻿@page "/Form/{FormSlug}/{Slug}"
+﻿@page "/Form/{FormSlug}"
+@page "/Form/{FormSlug}/{Slug}"
 @*What Does this mean? Formslug is the ID of the form, Slug is the Section ID*@
 @using MediPrepareQuestionair.Database
 @using MediPrepareQuestionair.Data
@@ -17,7 +18,7 @@
 @inject AnswerCollectionService AnswerCollectionService
 @using Color = MudBlazor.Color
 
-@if (AnswerSection != null && answerForm != null)
+@if (AnswerSection != null && answerForm != null && answerForm.ReferenceForm != null && shouldRender )
 {
 <MudCard>
     <MudCardHeader>TestData</MudCardHeader>
@@ -40,7 +41,20 @@
         <QuestionComponent QuestionEventCallback="MeasureMentCallback" QuestionEvents="answerForm.QuestionEventInputs" answerQuestion="question" />
     }
     <MudButton OnClick="OnNextPress" Variant="Variant.Filled" Color="Color.Primary">Next</MudButton>
-    
+    @if (NextDisabled)
+    {
+        
+        <MudButton OnClick="OnNextPress" Variant="Variant.Filled" Color="Color.Primary">Finnish</MudButton>
+    }
+}
+else
+{
+    <h1>Form not found</h1>
+    <p>Debug</p>
+    foreach (var form in TestDataFormService.Forms)
+    {
+        <p>@form.Id</p>
+    }
 }
 
 @code {
@@ -50,9 +64,10 @@
     public string? Slug { get; set; }
     [Parameter]
     public string? FormSlug { get; set; }
+    private bool shouldRender = false;
     
-    public Guid? Guid => System.Guid.TryParse(Slug, out var guud) ? guud : default;
-    public Guid? FormGuid => System.Guid.TryParse(FormSlug, out var guud) ? guud : default;
+    public Guid? Guid => System.Guid.TryParse(Slug, out var guud) ? guud : null;
+    public Guid? FormGuid => System.Guid.TryParse(FormSlug, out var guud) ? guud : null;
     
     public string DebugText { get; set; }
 
@@ -68,8 +83,9 @@
     protected override Task OnParametersSetAsync()
     {
         Console.WriteLine($"OnParametersSetAsync");
-        if (Slug == default || Guid == null) return base.OnParametersSetAsync();
+        if (FormSlug == default || FormGuid == null) return base.OnParametersSetAsync();
         timer = Stopwatch.StartNew();
+        OninitForm();
         if(answerForm?.ReferenceForm?.Sections == null) return base.OnParametersSetAsync();
         return base.OnParametersSetAsync();
     }
@@ -132,15 +148,25 @@
         if (form == default) return; //wait for OnParametersSetAsync
         answerForm = AnswerCollectionService.PrepareNewAnswerform(SessionId, form);
         answerForm.SessionId = SessionId;
-        AnswerSection = answerForm.AnswerSections.FirstOrDefault(x => x.ReferenceSection.Id == Guid);
+        
+        if (Guid == null || Guid == default)
+        {
+            AnswerSection =answerForm.AnswerSections.FirstOrDefault();
+        }
+        else
+        {
+            AnswerSection = answerForm.AnswerSections.FirstOrDefault(x => x.ReferenceSection.Id == Guid);
+        }
         //Check if this section is the last section
         var index = answerForm.ReferenceForm.Sections.IndexOf(AnswerSection.ReferenceSection); 
         NextDisabled = index + 1 >= answerForm.ReferenceForm.Sections.Count;
+        shouldRender = true;
         StateHasChanged();
     }
     private void OnNextPress()
     {
-        AnswerSection.TimeTaken = timer.Elapsed;
+        shouldRender = false;
+        AnswerSection.TimeTaken = timer == null ? timer.Elapsed : TimeSpan.Zero;
         Console.WriteLine(AnswerSection.TimeTaken.ToString("mm\\:ss\\.ff"));
         //Go to next section
         //Index of current section

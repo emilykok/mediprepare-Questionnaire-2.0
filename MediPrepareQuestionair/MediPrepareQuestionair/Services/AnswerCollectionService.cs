@@ -19,6 +19,10 @@ public class AnswerCollectionService
     {
         _testDataFormService = testDataFormService;
         _logger = logger;
+        foreach (var form in _testDataFormService.AnswerForms)
+        {
+            AnswerForms.Add("test", form);
+        }
     }
     
     public AnswerForm PrepareNewAnswerform(string SessionId, Form form)
@@ -65,6 +69,11 @@ public class AnswerCollectionService
             sb.AppendLine($"FormId: {form.Value.ReferenceForm.Id}");
             sb.AppendLine($"FormName: {form.Value.ReferenceForm.FormName}");
             sb.AppendLine($"FormVersion: {form.Value.ReferenceForm.Version}");
+            if (form.Value?.QuestionEventInputs == null)
+            {
+                _logger.LogInformation(sb.ToString());
+                return;
+            }
             sb.AppendLine($"Eveents: {form.Value.QuestionEventInputs.Count}");
             foreach (var answer in form.Value.QuestionEventInputs)
             {
