@@ -39,4 +39,37 @@ public static class AnswerFormExtensions
 
         return sb.ToString();
     }
+    public static bool IsFilledIn(this AnswerQuestion question)
+    {
+        if (question?.Value is null 
+            || question.Value.Count == 0) return false;
+        var answer = question.Value.Any(y =>
+            y?.IsFilledIn() == true);
+        return answer;
+    }
+
+    public static bool IsFilledIn(this QuestionAnswerValue value)
+    {
+        var result = value?.Value is not null 
+                         and not "" 
+                         and not "0" 
+                         and not "false" 
+                         and not "False" 
+                     && value.Value != DateTime.Now.ToString("yyyy-MM-dd"); // resolve date
+        return result;
+    }
+    /// <summary>
+    /// Calculates the procentile of the list that match the predicate
+    /// </summary>
+    /// <param name="list">List of list</param>
+    /// <param name="predicate">Function to apply</param>
+    /// <returns></returns>
+    public static double PercentileThat<T>(this IEnumerable<T> list, Func<T, bool> predicate, int decimals = 2)
+    {
+        var count = list.Count(predicate);
+        var total = list.Count();
+        var rounded = Math.Round((double) count / total, decimals);
+        rounded *= 100;
+        return rounded;
+    }
 }

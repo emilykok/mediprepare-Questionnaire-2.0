@@ -15,7 +15,11 @@
     </MudDrawer>
     <MudMainContent>
         <MudContainer MaxWidth="MaxWidth.Large">
-            @Body
+            <CascadingValue Value="_theme">
+                <CascadingValue Value="_isDarkMode">
+                        @Body
+                </CascadingValue>
+            </CascadingValue>
         </MudContainer>
     </MudMainContent>
 </MudLayout>
@@ -49,7 +53,7 @@
             DrawerWidthRight = "300px"
         }
     };
-    private bool _isDarkMode;
+    public bool _isDarkMode = true;
     private bool _isOpen;
     private MudThemeProvider _mudThemeProvider;
     

@@ -1,0 +1,51 @@
+﻿@typeparam TItem where TItem : class
+<MudCard Style="width: 500px">
+    <ApexChart TItem="TItem"
+               Options="options"
+               Title="@Title">
+        @foreach(var yFunc in YFunc)
+        {
+            <ApexPointSeries TItem="TItem"
+                             Items="Items"
+                             Name="@(yFunc.Key)"
+                             YAggregate="@(yFunc.Value)"
+                             XValue="XFunc"
+                             SeriesType="SeriesType.Bar"
+                             OrderByDescending="e => e.Y"/>
+        }
+    </ApexChart>
+</MudCard>
+@code {
+    [Parameter]
+    public Func<TItem, string> XFunc { get; set; }
+        
+    [Parameter]
+    public Dictionary<string, Func<IEnumerable<TItem>, decimal?>> YFunc { get; set; }
+
+    [Parameter]
+    public IEnumerable<TItem> Items { get; set; }
+    
+    [Parameter]
+    public bool IsHorizontal { get; set; } = true;
+         
+    [Parameter]
+    public string Title { get; set; } = "Chart";
+         
+    [CascadingParameter]
+    protected bool? _isDarkMode { get; set; } = false;
+
+    private ApexChartOptions<TItem> options => new ApexChartOptions<TItem>()
+    {
+        Theme = new Theme()
+        {
+            Mode = _isDarkMode != null && _isDarkMode.Value ? Mode.Dark : Mode.Light,
+        },
+        PlotOptions = new PlotOptions
+        {
+            Bar = new PlotOptionsBar
+            {
+                Horizontal = IsHorizontal
+            }
+        }
+    };
+}

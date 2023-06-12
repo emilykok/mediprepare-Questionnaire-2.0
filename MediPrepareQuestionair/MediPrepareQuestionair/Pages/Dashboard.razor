@@ -4,119 +4,77 @@
 @using MediPrepareQuestionair.Models
 @using MediPrepareQuestionair.Database
 @using System.Text
-<p>Dashboard</p>
-<MudContainer Class="d-flex flex-wrap gap-4" MaxWidth="MaxWidth.ExtraLarge">
-    <MudCard Style="width: 500px">
-        <ApexChart TItem="AnswerForm"
-                   Options="optionsForm"
-                   Title="Operating System">
-
-            <ApexPointSeries TItem="AnswerForm"
-                             Items="@AnswerCollectionService.AnswerFormsList"
-                             Name="Operating System"
-                             SeriesType="SeriesType.Pie"
-                             XValue="@(e => e.OperatingSystem)"
-                             YAggregate="@(e => e.Select(x => x.OperatingSystem).Count())"
-                             OrderByDescending="e=>e.Y" 
-                             />
-        </ApexChart>
-    </MudCard>
-    <MudCard Style="height: 500px">
-        <ApexChart TItem="AnswerForm"
-                   Options="optionsForm"
-                   Title="Device Type">
-
-            <ApexPointSeries TItem="AnswerForm"
-                             Items="@AnswerCollectionService.AnswerFormsList"
-                             Name="Device Type"
-                             SeriesType="SeriesType.Pie"
-                             XValue="@(e => e.DeviceType)"
-                             YAggregate="@(e => e.Select(x => x.DeviceType).Count())"
-                             OrderByDescending="e=>e.Y" 
-            />
-        </ApexChart>
-    </MudCard>
-    <MudCard Style="width: 500px"  >
-        <ApexChart TItem="AnswerForm"
-                   Options="optionsForm"
-                   Title="Issued Forms">
-    
-            <ApexPointSeries TItem="AnswerForm"
-                             Items="@AnswerCollectionService.AnswerFormsList"
-                             Name="Form"
-                             SeriesType="SeriesType.Pie"
-                             XValue="@(e => e.ReferenceForm.DisplayName)"
-                             YAggregate="@(e => e.Select(x => x.ReferenceForm.FormName).Count())"
-                             OrderByDescending="e=>e.Y" 
-            />
-        </ApexChart>
-    </MudCard>
-    <MudCard Style="width: 500px"  >
-            <ApexChart TItem="AnswerQuestion"
-                       Options="optionsQuestion"
-                           Title="Questions Answered">
+@using MediPrepareQuestionair.Extensions
+<MudContainer Class="d-flex flex-wrap gap-4" MaxWidth="MaxWidth.ExtraExtraLarge">
+    <MediChartComponent
+        TItem="AnswerForm"
+        Items="@AnswerCollectionService.AnswerFormsList"
+        Title="Device Type"
+        XFunc="e => e.DeviceType"
+        YFunc="e => e.Select(x => x.DeviceType).Count()"/>
+    <MediChartComponent
+        TItem="AnswerForm"
+        Items="@AnswerCollectionService.AnswerFormsList"
+        Title="Issued Forms"
+        XFunc="e => e.ReferenceForm.DisplayName"
+        YFunc="e => e.Select(x => x.ReferenceForm.FormName).Count()"/>
+    <MediChartComponent 
+        TItem="AnswerForm" 
+        Items="@AnswerCollectionService.AnswerFormsList" 
+        Title="Operating System"
+        XFunc="e => e.OperatingSystem"
+        YFunc="e => e.Select(x => x.OperatingSystem).Count()"/>
+    <MediChartComponent 
+        TItem="AnswerQuestion" 
+        Items="@AnswerCollectionService.AnswerFormsList.SelectMany(x=>x.AnswerSections.SelectMany(x=>x.AnswerQuestions))" 
+        Title="Questions Answered"
+        XFunc="GetAnswerQuestionValue"
+        YFunc="GetAnswerQuestionValueCount"/>
+    <MediBarChart 
+        TItem="AnswerQuestion"
+        Items="AllAnswerQuestions()"
+        Title="Questions Answered"
+        XFunc="GetAnswerQuestionValue"
+        YFunc="GetAnswerQuestionValueCountList"
         
-                    <ApexPointSeries TItem="AnswerQuestion"
-                                     Items="@AnswerCollectionService.AnswerFormsList.SelectMany(x=>x.AnswerSections.SelectMany(x=>x.AnswerQuestions))"
-                                     Name="Form"
-                                     SeriesType="SeriesType.Pie"
-                                     XValue="GetAnswerQuestionValue"
-                                     YAggregate="GetAnswerQuestionValueCount"
-                                     OrderByDescending="e=>e.Y" 
-                                     />
-                </ApexChart>
-            </MudCard>
+    />
+    <MediBarChart 
+            TItem="AnswerQuestion"
+            Items="AllAnswerQuestions()"
+            Title="Questions Answered"
+            XFunc="GetAnswerQuestionValue"
+            YFunc="Procentile"
+    />
 </MudContainer>
 
 @code{
-
-    private ApexChartOptions<T> options<T>() where T : class
-    {
-        return new ApexChartOptions<T>()
-        {
-            Theme = new Theme()
-            {
-                Mode = Mode.Dark
-            }
-        };
-    }
-    private ApexChartOptions<AnswerForm> optionsForm => new ApexChartOptions<AnswerForm>()
-    {
-        Theme = new Theme()
-        {
-            Mode = Mode.Dark
-        }
-    };
-    private ApexChartOptions<AnswerQuestion> optionsQuestion => new ApexChartOptions<AnswerQuestion>()
-    {
-        Theme = new Theme()
-        {
-            Mode = Mode.Dark
-        }
-    };
-
-    protected override void OnInitialized()
-    {
-
-    }
     //Func that return the Key of the AnswerQuestion 
     private Func<AnswerQuestion, string> GetAnswerQuestionValue = (e) => e.ReferenceQuestion.DisplayName;
-    Func<IEnumerable<AnswerQuestion>, decimal?> GetAnswerQuestionValueCount = (e) =>
+    Func<IEnumerable<AnswerQuestion>, decimal?> GetAnswerQuestionValueCount = (questions) => questions.Count(x => x.IsFilledIn());
+    private static bool isFilledIn(AnswerQuestion answerQuestion)
     {
-        foreach(var item in e)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine(item.ReferenceQuestion.DisplayName);
-            foreach(var x in item.Value)
-            {
-                sb.AppendLine($"\t{x.Value is not null && x.Value != "" && x.Value != "0" && x.Value != "false" && x.Value != "False" && x.Value != DateTime.Now.ToString("yyyy-MM-dd")}");
-                sb.Append($"\t{x.Value}");
-            }
-            Console.WriteLine(sb.ToString());
-        }
-        var items = e.Where(x => x.Value.Any(y => y.Value is not null && y.Value != "" && y.Value != "0" && y.Value != "false" && y.Value != "False" && y.Value != DateTime.Now.ToString("yyyy-MM-dd")));
-        return items.Count();
-    }; 
+        return answerQuestion.IsFilledIn();
+    }
+    private IEnumerable<AnswerQuestion> AllAnswerQuestions() => AnswerCollectionService.AnswerFormsList.SelectMany(x => x.AnswerSections.SelectMany(x => x.AnswerQuestions));
+
+    static Func<IEnumerable<AnswerQuestion>, decimal?> Procentiles = (questions) =>
+    {
+        var result = questions.PercentileThat(isFilledIn);
+        return (decimal?)result;
+    };
+    
+    Dictionary<string, Func<IEnumerable<AnswerQuestion>, decimal?>> GetAnswerQuestionValueCountList = new()
+    {
+        {"Filled in", (e=> e.Count(x=>x.IsFilledIn()))},
+        {"Total served", (e=> e.Count())},
+    };
+
+    Dictionary<string, Func<IEnumerable<AnswerQuestion>, decimal?>> Procentile = new()
+    {
+        {"% Filled in", Procentiles},
+    };
+
+
 
 
 }

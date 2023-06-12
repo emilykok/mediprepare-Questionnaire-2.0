@@ -1,0 +1,49 @@
+﻿@typeparam TItem where TItem : class
+<MudCard Style="width: 500px">
+    <ApexChart TItem="TItem"
+               Options="options"
+               Title="@Title">
+        <ApexPointSeries TItem="TItem"
+                         Items="Items"
+                         Name="@Title"
+                         SeriesType="SeriesType.Pie"
+                         XValue="@(XFunc)"
+                         YAggregate="@(YFunc)"
+                         OrderByDescending="e => e.Y"/>
+    </ApexChart>
+</MudCard>
+
+ @code {
+        [Parameter]
+        public Func<TItem, string> XFunc { get; set; }
+        
+        [Parameter]
+        public Func<IEnumerable<TItem>, decimal?> YFunc { get; set; }
+        
+        [Parameter]
+        public IEnumerable<TItem> Items { get; set; }
+         
+        [Parameter]
+        public string Title { get; set; } = "Chart";
+         
+        [CascadingParameter]
+        protected bool? _isDarkMode { get; set; } = false;
+     
+        [CascadingParameter]
+        protected MudTheme? _theme { get; set; }
+
+         private ApexChartOptions<TItem> options => new ApexChartOptions<TItem>()
+         {
+             Theme = new Theme()
+             {
+                 Mode = _isDarkMode != null && _isDarkMode.Value ? Mode.Dark : Mode.Light,
+             },
+             PlotOptions = new PlotOptions
+             {
+                 Bar = new PlotOptionsBar
+                 {
+                     Horizontal = true
+                 }
+             }
+        };
+ }
