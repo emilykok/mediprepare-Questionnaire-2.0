@@ -27,7 +27,6 @@ public class InfluxDbService
     {
         using var client = InfluxDBClientFactory.Create("http://localhost:8086", _token);
         using var write = client.GetWriteApi();
-        _logger.LogInformation("Writing to InfluxDB");
         write.WritePoint(data, bucket, org);
     }
 
@@ -36,7 +35,6 @@ public class InfluxDbService
         using var client = new InfluxDBClient("http://localhost:8086", "wqCcT6BglzSq1k6tT0JqZqW7YyQytgfDAZQuLmGFNMrFKKNDY0dpTcMVsCB80wAegzz5EbkHSSuSaMgaRJmOZA==");
         using var write = client.GetWriteApi();
         write.WriteMeasurement(measurement, WritePrecision.Ms, bucket, org);
-        _logger.LogInformation("Writing to InfluxDB");
     }
 
     public async Task<T> QueryAsync<T>(Func<QueryApi, Task<T>> action)

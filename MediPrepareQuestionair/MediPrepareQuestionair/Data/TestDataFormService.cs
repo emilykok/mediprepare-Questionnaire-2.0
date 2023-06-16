@@ -94,9 +94,9 @@ public class TestDataFormService
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111112"),
                 ReferenceForm = Forms.First(),
-                OperatingSystem = "linux",
-                ScreenOrientation = "horizontal",
-                DeviceType = "yeṡ",
+                OperatingSystem = "Android",
+                ScreenOrientation = "vertical",
+                DeviceType = "Mobile",
                 QuestionEventInputs = new(),
                 AnswerSections = new List<AnswerSection>()
                 {

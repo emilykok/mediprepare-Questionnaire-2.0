@@ -131,11 +131,12 @@ else
     private void MeasureMentCallback(QuestionEventInput ms)
     {
         InfluxDbService.WritePoint(
-            PointData.Measurement(ms.EventName)
+            PointData.Measurement("QuestionEvent")
                 .Now()
                 .Tag("questionid", ms.QuestionId.ToString())
+                .Tag("session", ms.SessionId)
+                .Tag("EventName", ms.EventName)
                 .Field("value", ms.Value)
-                .Field("session", ms.SessionId)
                 
         );
         InfluxDbService.WriteMeasurement(ms);
